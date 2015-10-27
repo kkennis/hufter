@@ -1,4 +1,4 @@
-## Hufter: An Easier Stock API
+# Hufter: An Easier Stock API
 
 Hufter is a wrapper for the YQL finance API. It has an easy-to-use, declarative style with RESTful routes and flexible options.
 
