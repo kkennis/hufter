@@ -4,7 +4,7 @@ var YF = require('../queries/query.js')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.json({ message: 'Welcome to YQLPlus' });
+  res.send('Welcome to YQLPlus');
 });
 
 router.get('/quote/:ticker', function(req, res, next) {
