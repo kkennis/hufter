@@ -10,7 +10,7 @@ function getStockData(symbol, metrics, startDate, endDate){
   if (!endDate) { endDate = moment().format("YYYY-MM-DD") }
 
   // Initialize something to return
-  var stockData = null;
+  var stockData = {};
 
   // This will always be the same
   var rootPath = 'https://query.yahooapis.com/v1/public/yql?q=';
@@ -28,8 +28,6 @@ function getStockData(symbol, metrics, startDate, endDate){
   // we need to change it later. Note I'm encoding the query string
   var fullQuery = rootPath + encodeURIComponent(query) + extraParams;
 
-  console.log(fullQuery);
-
   var XMLHttpRequest = xhr.XMLHttpRequest;
   var request = new XMLHttpRequest();
   request.open('GET', fullQuery, false);
@@ -37,7 +35,7 @@ function getStockData(symbol, metrics, startDate, endDate){
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
       stockJSON = JSON.parse(request.responseText);
-      stockData = stockJSON["query"]["results"]["quote"];
+      stockData.results = stockJSON["query"]["results"]["quote"];
       stockData.ResolutionTime = stockJSON["query"]["diagnostics"]["user-time"];
     } else {
       console.log("Server error " + request.status);
@@ -61,7 +59,7 @@ module.exports.getHistoricalData = getStockData;
 module.exports.getAllData = getStockDatawithOptions(R.__, null);
 module.exports.getLastYear = getStockDatawithOptions(R.__, null, null, null);
 module.exports.getVolume = getStockDatawithOptions(R.__, "Volume");
-module.exports.getHighLow = getStockData(R.__, ["High", "Low"]);
+module.exports.getHighLow = getStockDatawithOptions(R.__, ["High", "Low"]);
 module.exports.getOpenClose = getStockDatawithOptions(R.__, ["Open", "Close"]);
 module.exports.getAdjClose = getStockDatawithOptions(R.__, "Adj_Close");
 

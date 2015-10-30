@@ -28,13 +28,11 @@ router.get('/quote/:symbol', function(req, res, next) {
 router.get('/historicaldata/:symbol', function(req, res, next) {
   var response;
 
-  if (req.query.alldata === "true"){
-    response = YFhistoricaldata.getAllData(req.params.symbol, req.query.startDate, req.query.endDate);
-  } else if (req.query.metrics) {
+  if (req.query.metrics) {
     metrics = decodeURIComponent(req.query.metrics).split(",");
     response = YFhistoricaldata.getHistoricalData(req.params.symbol, metrics, req.query.startDate, req.query.endDate);
   } else {
-    response = YFhistoricaldata.getLastYear(req.params.ticker);
+    response = YFhistoricaldata.getAllData(req.params.symbol, req.query.startDate, req.query.endDate);
   }
 
   res.json(response);

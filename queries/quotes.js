@@ -8,7 +8,7 @@ function getStockData(symbol, metrics){
 
 
   // Initialize something to return
-  var stockData = null;
+  var stockData = {};
 
   // This will always be the same
   var rootPath = 'https://query.yahooapis.com/v1/public/yql?q=';
