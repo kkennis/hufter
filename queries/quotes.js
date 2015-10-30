@@ -1,4 +1,6 @@
 var R = require('ramda');
+var xhr = require("xmlhttprequest");
+
 
 function getStockData(symbol, metrics){
   if (!metrics) { metrics = "*" } 
@@ -23,7 +25,7 @@ function getStockData(symbol, metrics){
   // we need to change it later. Note I'm encoding the query string
   var fullQuery = rootPath + encodeURIComponent(query) + extraParams;
 
-  var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+  var XMLHttpRequest = xhr.XMLHttpRequest;
   var request = new XMLHttpRequest();
   request.open('GET', fullQuery, false);
 

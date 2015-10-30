@@ -1,29 +1,43 @@
 var express = require('express');
 var router = express.Router();
-var YF = require('../queries/query.js')
+var YFquotes = require('../queries/quotes.js')
+var YFhistoricaldata = require('../queries/historicaldata.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.send('Welcome to YQLPlus');
 });
 
-router.get('/quote/:ticker', function(req, res, next) {
+router.get('/quote/:symbol', function(req, res, next) {
+  var response;
+
   if (req.query.volume === "true"){
-    response = YF.getLastTradeWithVolume(req.params.ticker);
+    response = YFquotes.getLastTradeWithVolume(req.params.symbol);
   } else if (req.query.alldata === "true"){
-    response = YF.getAllData(req.params.ticker);
+    response = YFquotes.getAllData(req.params.symbol);
   } else if (req.query.metrics){
-    response = YF.getStockData(req.params.ticker,
+    response = YFquotes.getStockData(req.params.symbol,
                                decodeURIComponent(req.query.metrics).split(","));
   } else {
-    response = YF.getLastTrade(req.params.ticker)
+    response = YFquotes.getLastTrade(req.params.symbol)
   }
   res.json(response);
 });
 
 
-router.get('/historicaldata/:ticker', function(req, res, next) {
-  res.json({ message: 'You requested stock ' + req.params.ticker });
+router.get('/historicaldata/:symbol', function(req, res, next) {
+  var response;
+
+  if (req.query.alldata === "true"){
+    response = YFhistoricaldata.getAllData(req.params.symbol, req.query.startDate, req.query.endDate);
+  } else if (req.query.metrics) {
+    metrics = decodeURIComponent(req.query.metrics).split(",");
+    response = YFhistoricaldata.getHistoricalData(req.params.symbol, metrics, req.query.startDate, req.query.endDate);
+  } else {
+    response = YFhistoricaldata.getLastYear(req.params.ticker);
+  }
+
+  res.json(response);
 });
 
 module.exports = router;
