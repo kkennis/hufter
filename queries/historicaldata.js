@@ -23,7 +23,7 @@ function getStockData(symbols, metrics, startDate, endDate){
   // I think this is a lot easier to read, it's more SQL-like, then we can 
   // just run it through JS's native URI encoder. Also super easy to just
   // drop in new queries through params (for future)
-  var query = 'select ' + metrics + ' from yahoo.finance.historicaldata where symbol = "' + symbol + '"' + 
+  var query = 'select ' + metrics + ' from yahoo.finance.historicaldata where symbol in (' + symbols + ')' + 
               ' and startDate = "' + startDate + '" and endDate="' + endDate + '"';
 
   // These will also always be the same, as far as I understand.
