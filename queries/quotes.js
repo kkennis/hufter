@@ -2,9 +2,14 @@ var R = require('ramda');
 var xhr = require("xmlhttprequest");
 
 
-function getStockData(symbol, metrics){
-  if (!metrics) { metrics = "*" } 
-  else if (Array.isArray(metrics)) { metrics = metrics.join(",") }
+function getStockData(symbols, metrics){
+  if (!metrics) { metrics = '*' } 
+  else if (R.type(metrics) === "String") { metrics = metrics + ", Symbol"}
+  else if (R.type(metrics) === "Array") { metrics = metrics.concat("Symbol").join(',') }
+
+  if (!symbols) { symbols = '"SPY"' } 
+  else if (R.type(symbols) === "String") { symbols = '"' + symbols + '"' }
+  else if (R.type(symbols) === "Array") { symbols = symbols.join('","') }
 
 
   // Initialize something to return
@@ -16,7 +21,7 @@ function getStockData(symbol, metrics){
   // I think this is a lot easier to read, it's more SQL-like, then we can 
   // just run it through JS's native URI encoder. Also super easy to just
   // drop in new queries through params (for future)
-  var query = 'select ' + metrics + ' from yahoo.finance.quotes where symbol = "' + symbol + '"';
+  var query = 'select ' + metrics + ' from yahoo.finance.quotes where symbol in (' + symbols + ')';
 
   // These will also always be the same, as far as I understand.
   var extraParams = '&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';

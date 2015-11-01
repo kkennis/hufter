@@ -2,9 +2,14 @@ var R = require('ramda');
 var moment = require('moment');
 var xhr = require("xmlhttprequest");
 
-function getStockData(symbol, metrics, startDate, endDate){
+function getStockData(symbols, metrics, startDate, endDate){
   if (!metrics) { metrics = "*" } 
-  else if (Array.isArray(metrics)) { metrics = metrics.concat(["Date"]).join(",") }
+  else if (R.type(metrics) === "String") { metrics = metrics + ", Symbol"}
+  else if (R.type(metrics) === "Array") { metrics = metrics.concat(["Date", "Symbol"]).join(",") }
+
+  if (!symbols) { symbols = '"SPY"' } 
+  else if (R.type(symbols) === "String") { symbols = '"' + symbols + '"' }
+  else if (R.type(symbols) === "Array") { symbols = symbols.join('","') }
 
   if (!startDate) { startDate = moment().subtract(1, 'years').format("YYYY-MM-DD") }
   if (!endDate) { endDate = moment().format("YYYY-MM-DD") }
