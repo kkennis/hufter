@@ -1,10 +1,19 @@
 var YFquotes = require('../queries/quotes.js')
 
-function runBacktest(algo, stockData){
+function runBacktest(algo, stocks){
   var results = {};
-  YFquotes.getLastTrade(req.query.symbols)
-  var signals = algo(stockData);
+  // YFquotes.getLastTrade(req.query.symbols)
+  var signals = [];
+  stocks.forEach(function(stock){
+    signals.push(algo(stock));
+  });
 
+
+  var results = {};
+  stocks.forEach(function(stock){
+    results["symbol"] = stock["symbol"];
+    results["symbol"]["LastTradedPrice"] = YFquotes.getLastTrade(results["symbol"]);
+  });
   /*
 
   Metrics we want:
@@ -15,6 +24,8 @@ function runBacktest(algo, stockData){
     * Losses (gross and percentage)
 
   */
+
+  return results;
 
 }
 
