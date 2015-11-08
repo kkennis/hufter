@@ -1,5 +1,4 @@
 function test2(array){
-  // console.log(array);
   var buy = [];
   var buyCopy = []
   var sell = [];
