@@ -2,7 +2,8 @@ var YFhistoricaldata = require('../queries/historicaldata.js');
 
 function runBacktest(algo, stocks, data){
   var results = {};
-  
+
+  // Does this even need to be a promise?  
   return new Promise(function(resolve, reject){
 
     stocks.forEach(function(stock){

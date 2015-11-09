@@ -6,6 +6,9 @@ To use the API, simply append your desired API to the root path, then your desir
 
 ## Quote API (`/quote`): 
 
+Provides real-time price information from Yahoo Finance along with a variety of metrics.
+
+* symbols - provide a URL-encoded, comma-delimited list of ticker symbols
 * volume - set to "true" to recieve current volume in addition to last price
 * alldata - set to "true" to receieve all of the quote data associated with the stock (82 metrics)
 * metrics - provide a (URI-encoded) comma-delimited list of the metrics you want to recieve. Possible metrics: 
@@ -93,9 +96,41 @@ To use the API, simply append your desired API to the root path, then your desir
   * DividendYield
   * PercentChange
 
+Usage:
+
+```
+GET /quotes?symbols=SPY%2CAAPL%2CMSFT&metrics=LastTradePriceOnly%2CPercentChange%2CVolume
+```
+Returns:
+```
+[
+  {
+    "LastTradePriceOnly": "210.04",
+    "Symbol": "SPY",
+    "Volume": "110471473",
+    "PercentChange": "-0.05%"
+  },
+  {
+    "LastTradePriceOnly": "121.06",
+    "Symbol": "AAPL",
+    "Volume": "33042283",
+    "PercentChange": "+0.12%"
+  },
+  {
+    "LastTradePriceOnly": "54.92",
+    "Symbol": "MSFT",
+    "Volume": "32851204",
+    "PercentChange": "+0.99%"
+  }
+]
+```
+
 ## Historical Data API (`/historicaldata`)
 
-* startDate - provide a start date for historical data in YYYY-MM-DD format (goes back ~19 months). Defaults to one year before present.
+Provides daily historical data information back to 1996/04/12.
+
+* symbols - provide a URI-encoded, comma-delimited list of ticker symbols
+* startDate - provide a start date for historical data in YYYY-MM-DD format. Defaults to one year before present.
 * endDate - provide an end date for historical data in YYYY-MM-DD format. Defaults to current day.
 * metrics - provide a (URI-encoded) comma-delimited list of the metrics you want to recieve. Possible metrics:
   * Symbol
@@ -106,4 +141,13 @@ To use the API, simply append your desired API to the root path, then your desir
   * Close
   * Volume
   * Adj_Close
+
+## Backtesting Engine (`/backtest`)
+
+Post a JavaScript algorithm as text, along with startDate and endDate params. Outputs JSON containing
+buy/sell signals for the algorithm along with other pertinent stats.
+
+
+
+
 
