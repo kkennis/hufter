@@ -18,10 +18,10 @@ function runBacktest(algo, stocks, data){
       // Probably needs refactoring/better algorithm. Double nesting not good
       results[stock]["signals"] = algo(stockData);
 
-      var buySignals = R.map(R.last, results[stock]["signals"]["buy"]).map(parseFloat);
+      var buySignals = results[stock]["signals"]["buy"].map(R.last).map(parseFloat);
       var totalBought = buySignals.reduce((memo, val) => memo + val);
 
-      var sellSignals = R.map(R.last, results[stock]["signals"]["sell"]).map(parseFloat); 
+      var sellSignals = results[stock]["signals"]["sell"].map(R.last).map(parseFloat); 
       var totalSold = sellSignals.reduce((memo, val) => memo + val);
 
       results[stock]["TotalBought"] = totalBought;
@@ -31,11 +31,9 @@ function runBacktest(algo, stocks, data){
 
       var totalVolume = stockData.map(function(datum){
                           return parseInt(datum["Volume"], 10);
-                        }).reduce(function(memo, val) {
-                          return memo + val;
-                        });
+                        }).reduce((memo, val) => memo + val);
 
-      results[stock]["TotalVolume"] = totalVolume
+      results[stock]["TotalVolume"] = totalVolume;
       results[stock]["AverageDailyVolume"] = totalVolume / stockData.length; 
       // Buy/Sell Count & Buys/Sells per day
     });
