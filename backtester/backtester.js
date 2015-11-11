@@ -3,7 +3,7 @@ var R = require('ramda');
 
 
 function runBacktest(algo, stocks, data){
-  var results = { "overallStats": {} };
+  var results = {};
 
   // Does this even need to be a promise?  
   return new Promise(function(resolve, reject){
@@ -11,28 +11,60 @@ function runBacktest(algo, stocks, data){
     stocks.forEach(function(stock){
       results[stock] = {};
 
-      // Probably needs refactoring/better algorithm. Double nesting not good
-      results[stock]["signals"] = algo(data.filter(function(entry){
+      var stockData = data.filter(function(entry){
         return entry["Symbol"] === stock;
-      }));
+      });
 
-      // var parser = R.compose(R.map(parseFloat), R.last)
+      // Probably needs refactoring/better algorithm. Double nesting not good
+      results[stock]["signals"] = algo(stockData);
 
       var buySignals = R.map(R.last, results[stock]["signals"]["buy"]).map(parseFloat);
-      // var buySignals = R.compose(R.map(parseFloat), R.map(la)
       var totalBought = buySignals.reduce((memo, val) => memo + val);
-      console.log(totalBought)
-      // console.log(totalBought)
 
       var sellSignals = R.map(R.last, results[stock]["signals"]["sell"]).map(parseFloat); 
-      var totalSold = sellSignals.reduce((memo, val) => memo + val)
-      console.log(totalSold)
+      var totalSold = sellSignals.reduce((memo, val) => memo + val);
 
-      results[stock]["Total Bought"] = totalBought;
-      results[stock]["Total Sold"] = totalSold;
+      results[stock]["TotalBought"] = totalBought;
+      results[stock]["TotalSold"] = totalSold;
       results[stock]["ROI"] = (totalSold - totalBought) / totalBought;
       results[stock]["GrossReturn"] = totalSold - totalBought;
+
+      var totalVolume = stockData.map(function(datum){
+                          return parseInt(datum["Volume"], 10);
+                        }).reduce(function(memo, val) {
+                          return memo + val;
+                        });
+
+      results[stock]["TotalVolume"] = totalVolume
+      results[stock]["AverageDailyVolume"] = totalVolume / stockData.length; 
+      // Buy/Sell Count & Buys/Sells per day
     });
+
+    var overallStats = {};
+
+    var overallBought = Object.keys(results)
+                              .map((stock) => results[stock]["TotalBought"])
+                              .reduce((memo, val) => memo + val);
+
+    var overallSold = Object.keys(results)
+                            .map((stock) => results[stock]["TotalSold"])
+                            .reduce((memo, val) => memo + val);
+
+    overallStats["TotalBought"] = overallBought;
+    overallStats["TotalSold"] = overallSold;
+    overallStats["ROI"] = (overallSold - overallBought) / overallBought;
+    overallStats["GrossReturn"] = overallSold - overallBought;
+
+    var overallVolume = Object.keys(results)
+                              .map((stock) => results[stock]["TotalVolume"])
+                              .reduce((memo, val) => memo + val);
+
+    overallStats["TotalVolume"] = overallVolume
+    overallStats["AverageDailyVolume"] = overallVolume / Object.keys(results).length;
+
+
+    results["TotalStats"] = overallStats;
+
 
     resolve(results);
   });
