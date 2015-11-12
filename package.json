@@ -12,6 +12,7 @@
     "express": "~4.13.1",
     "jade": "~1.11.0",
     "moment": "^2.10.6",
+    "mongoose": "^4.2.5",
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0",
     "xmlhttprequest": "^1.8.0"

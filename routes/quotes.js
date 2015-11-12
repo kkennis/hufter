@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var YFquotes = require('../queries/quotes.js')
+var YFquotes = require('../queries/quotes.js');
+var saveToMongo = require('../queries/save.js')
 
 router.get('/', function(req, res, next) {
   var response;
@@ -16,6 +17,12 @@ router.get('/', function(req, res, next) {
     response = YFquotes.getLastTrade(req.query.symbols)
   }
   res.json(response);
+});
+
+router.get('/save', function(req, res, next) {
+  response = YFquotes.getLastTrade(req.query.symbols);
+  saveToMongo(response);
+  res.json({ "Status": "Data saved at ".concat(new Date().toString()) })
 });
 
 
