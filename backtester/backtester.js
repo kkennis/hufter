@@ -4,6 +4,7 @@ var R = require('ramda');
 
 function runBacktest(algo, stocks, data){
   var results = {};
+  var numPeriods = null;
 
   // Does this even need to be a promise?  
   return new Promise(function(resolve, reject){
@@ -14,6 +15,8 @@ function runBacktest(algo, stocks, data){
       var stockData = data.filter(function(entry){
         return entry["Symbol"] === stock;
       });
+
+      if (!numPeriods) numPeriods = stockData.length;
 
       // Probably needs refactoring/better algorithm. Double nesting not good
       results[stock]["signals"] = algo(stockData);
@@ -36,6 +39,13 @@ function runBacktest(algo, stocks, data){
       results[stock]["TotalVolume"] = totalVolume;
       results[stock]["AverageDailyVolume"] = totalVolume / stockData.length; 
       // Buy/Sell Count & Buys/Sells per day
+
+      results[stock]["TotalBuys"] = buySignals.length;
+      results[stock]["TotalSells"] = sellSignals.length;
+      results[stock]["BuysPerPeriod"] = buySignals.length /  numPeriods;
+      results[stock]["SellsPerPeriod"] = sellSignals.length /  numPeriods;
+      
+      results[stock]["TotalTrades"] = buySignals.length + sellSignals.length;
     });
 
     var overallStats = {};
@@ -60,6 +70,23 @@ function runBacktest(algo, stocks, data){
     overallStats["TotalVolume"] = overallVolume
     overallStats["AverageDailyVolume"] = overallVolume / Object.keys(results).length;
 
+    overallStats["TotalBuys"] = Object.keys(results)
+                                      .map((stock) => results[stock]["TotalBuys"])
+                                      .reduce((memo, val) => memo + val);
+
+    overallStats["TotalSells"] = Object.keys(results)
+                                       .map((stock) => results[stock]["TotalSells"])
+                                       .reduce((memo, val) => memo + val);
+
+    overallStats["BuysPerPeriod"] = Object.keys(results)
+                                          .map((stock) => results[stock]["BuysPerPeriod"])
+                                          .reduce((memo, val) => memo + val);
+
+    overallStats["SellsPerPeriod"] = Object.keys(results)
+                                          .map((stock) => results[stock]["SellsPerPeriod"])
+                                          .reduce((memo, val) => memo + val);
+
+    overallStats["TotalTrades"] = overallStats["TotalBuys"] + overallStats["TotalSells"];
 
     results["TotalStats"] = overallStats;
 
