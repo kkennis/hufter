@@ -11,7 +11,7 @@ var quoteSchema = mongoose.Schema({
 
 var Quote = mongoose.model('Quote', quoteSchema);
 
-var save = function(datum){
+var save = function(stocks){
   var currentTime = moment().tz('America/New_York');
   var openTime = moment('09:30', 'HH:MM');
   var closeTime = moment('16:00', 'HH:MM');
@@ -26,29 +26,24 @@ var save = function(datum){
     db.on('error', console.error.bind(console, 'connection error:'));
 
     if (db.readyState === 1) {
-      new Promise(function(resolve, reject){
-        resolve(YF.getLastTrade(symbols));
-      })
-      .then(function(stocks){
-        stocks.forEach(function(stock){
-          if (stock["LastTradePriceOnly"]) {
-            var currentQuote = new Quote({
-                                            symbol: stock["Symbol"],
-                                            lastTradePrice: stock["LastTradePriceOnly"],
-                                            timestamp: new Date().getTime()
-                                        });
+      stocks.forEach(function(stock){
+        if (stock["LastTradePriceOnly"]) {
+          var currentQuote = new Quote({
+                                          symbol: stock["Symbol"],
+                                          lastTradePrice: stock["LastTradePriceOnly"],
+                                          timestamp: new Date().getTime()
+                                      });
 
-            currentQuote.save(function(err, quote){
-              if (err){
-                console.log(err);
-              } else {
-                console.log("Quote for ", quote.symbol, "saved at ", moment().format('lll'));
-              }
-            });
-          } else {
-            console.log("Could not retrieve trade data for ", stock["Symbol"], " at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time)");
-          }
-        });
+          currentQuote.save(function(err, quote){
+            if (err){
+              console.log(err);
+            } else {
+              console.log("Quote for ", quote.symbol, "saved at ", moment().format('lll'));
+            }
+          });
+        } else {
+          console.log("Could not retrieve trade data for ", stock["Symbol"], " at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time)");
+        }
       });
     }
 
