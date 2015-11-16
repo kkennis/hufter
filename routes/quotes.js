@@ -20,7 +20,8 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/save', function(req, res, next) {
-  response = YFquotes.getLastTrade(req.query.symbols);
+  var symbols = ["SCON", "YELP", "P", "TWTR", "DIG", "BBRY", "WDC", "OIH", "IVE", "IBM"];
+  response = YFquotes.getLastTrade(symbols);
   saveToMongo(response);
   res.end("Request received");
 });
