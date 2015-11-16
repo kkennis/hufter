@@ -13,8 +13,8 @@ var Quote = mongoose.model('Quote', quoteSchema);
 
 var save = function(stocks){
   var currentTime = moment().tz('America/New_York');
-  var openTime = moment('09:30', 'HH:MM');
-  var closeTime = moment('16:00', 'HH:MM');
+  var openTime = moment({hour: 9, minute: 30});
+  var closeTime = moment({hour: 16});
   var db = mongoose.connection;
 
   if (currentTime.isBetween(openTime, closeTime)){
@@ -38,7 +38,7 @@ var save = function(stocks){
             if (err){
               console.log(err);
             } else {
-              console.log("Quote for ", quote.symbol, "saved at ", moment().format('lll'));
+              console.log("Quote for", quote.symbol, "saved at", moment().format('lll'));
             }
           });
         } else {

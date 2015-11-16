@@ -12,7 +12,7 @@ router.get('/', function(req, res, next) {
     response = YFquotes.getAllData(req.query.symbols);
   } else if (req.query.metrics){
     response = YFquotes.getStockData(req.query.symbols,
-                               decodeURIComponent(req.query.metrics).split(","));
+               decodeURIComponent(req.query.metrics).split(","));
   } else {
     response = YFquotes.getLastTrade(req.query.symbols)
   }
@@ -22,8 +22,13 @@ router.get('/', function(req, res, next) {
 router.get('/save', function(req, res, next) {
   var symbols = ["SCON", "YELP", "P", "TWTR", "DIG", "BBRY", "WDC", "OIH", "IVE", "IBM"];
   response = YFquotes.getLastTrade(symbols);
-  saveToMongo(response);
-  res.end("Request received");
+  if (Object.keys(response).length !== 0){
+    saveToMongo(response);
+    res.end("Request received at " + new Date().toString());
+  } else {
+    res.send(response);
+    res.end("Yahoo API Error")
+  }
 });
 
 

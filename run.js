@@ -1,20 +1,10 @@
-var request = require('request')
-var through = require('through2')
-var mongo = require('mongojs')
-var db = mongo('test', ['stocks'])
- 
-// setInterval(function() {
+var xhr = require('xmlhttprequest');
 
-// },30000);
+setInterval(function(){ 
+  console.log("Sending request at", new Date())
+  var XMLHttpRequest = xhr.XMLHttpRequest;
+  var request = new XMLHttpRequest();
+  request.open('GET', "http://localhost:3000/quotes/save", true);
 
-request('http://localhost:3000/quotes?symbols=DIG%2CBBRY%2CWDC%2COIH%2CIVE%2CIBM%2CYELP%2CP%2CTWTR')
-  .pipe(through(function(data){
-    console.log(data);
-    data = JSON.parse(data);
-    data.map(function(stock){
-      stock.timestamp = new Date();
-    });
-    db.stocks.insert(data);
-    db.close();
-    console.log("Data saved at", new Date().toString());
-  }))
+  request.send();
+}, 30000);

@@ -21,7 +21,7 @@ function getStockData(symbols, metrics){
   // I think this is a lot easier to read, it's more SQL-like, then we can 
   // just run it through JS's native URI encoder. Also super easy to just
   // drop in new queries through params (for future)
-  var query = 'select ' + metrics + ' from yahoo.finance.quotes where symbol in (' + symbols + ')';
+  var query = 'select ' + metrics + ' from yahoo.finance.quotes where symbol in ("' + symbols + '")';
 
   // These will also always be the same, as far as I understand.
   var extraParams = '&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';
@@ -40,7 +40,7 @@ function getStockData(symbols, metrics){
       stockData = stockJSON["query"]["results"]["quote"];
       stockData.ResolutionTime = stockJSON["query"]["diagnostics"]["user-time"];
     } else {
-      console.log("Server error");
+      console.log("Server error", request.status);
     }
   };
 
