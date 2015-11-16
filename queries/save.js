@@ -1,15 +1,63 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/test');
+var moment = require('moment');
+var tz = require('moment-timezone');
+var YFquotes = require('./quotes');
+
+var quoteSchema = mongoose.Schema({
+  symbol: String,
+  lastTradePrice: Number,
+  timestamp: Number
+});
+
+var Quote = mongoose.model('Quote', quoteSchema);
 
 var save = function(datum){
-
+  var currentTime = moment().tz('America/New_York');
+  var openTime = moment('09:30', 'HH:MM');
+  var closeTime = moment('16:00', 'HH:MM');
   var db = mongoose.connection;
-  db.on('error', console.error.bind(console, 'connection error:'));
-  db.once('open', function (callback) {
-    var dataPoint = db.model('dataPoint')
-    (new dataPoint(datum)).save(callback);
-  });
-  mongoose.disconnect();
+
+  if (currentTime.isBetween(openTime, closeTime)){
+    if (db.readyState === 0) {
+      console.log("Connecting to database at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time)");
+      mongoose.connect('mongodb://localhost/test');
+    }
+
+    db.on('error', console.error.bind(console, 'connection error:'));
+
+    if (db.readyState === 1) {
+      new Promise(function(resolve, reject){
+        resolve(YF.getLastTrade(symbols));
+      })
+      .then(function(stocks){
+        stocks.forEach(function(stock){
+          if (stock["LastTradePriceOnly"]) {
+            var currentQuote = new Quote({
+                                            symbol: stock["Symbol"],
+                                            lastTradePrice: stock["LastTradePriceOnly"],
+                                            timestamp: new Date().getTime()
+                                        });
+
+            currentQuote.save(function(err, quote){
+              if (err){
+                console.log(err);
+              } else {
+                console.log("Quote for ", quote.symbol, "saved at ", moment().format('lll'));
+              }
+            });
+          } else {
+            console.log("Could not retrieve trade data for ", stock["Symbol"], " at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time)");
+          }
+        });
+      });
+    }
+
+
+  } else {
+    console.log("Disconnecting from database at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time)");
+    mongoose.disconnect();
+  }
 }
+
 
 module.exports = save;
