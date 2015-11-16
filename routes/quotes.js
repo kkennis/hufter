@@ -22,7 +22,7 @@ router.get('/', function(req, res, next) {
 router.get('/save', function(req, res, next) {
   response = YFquotes.getLastTrade(req.query.symbols);
   saveToMongo(response);
-  res.json({ "Status": "Data saved at ".concat(new Date().toString()) })
+  res.end("Request received");
 });
 
 

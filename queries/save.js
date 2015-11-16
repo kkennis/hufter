@@ -19,7 +19,7 @@ var save = function(stocks){
 
   if (currentTime.isBetween(openTime, closeTime)){
     if (db.readyState === 0) {
-      console.log("Connecting to database at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time)");
+      console.log("Connecting to database at", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time )");
       mongoose.connect('mongodb://localhost/test');
     }
 
@@ -42,14 +42,14 @@ var save = function(stocks){
             }
           });
         } else {
-          console.log("Could not retrieve trade data for ", stock["Symbol"], " at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time)");
+          console.log("Could not save trade data for ", stock["Symbol"], " at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), "market time )");
         }
       });
     }
 
 
   } else {
-    console.log("Disconnecting from database at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time)");
+    console.log("Outside current trade hours. Disconnecting from database at", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), "market time )");
     mongoose.disconnect();
   }
 }
