@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var moment = require('moment');
 var tz = require('moment-timezone');
+var range = require('moment-range');
 var YFquotes = require('./quotes');
 
 var quoteSchema = mongoose.Schema({
@@ -13,11 +14,13 @@ var Quote = mongoose.model('Quote', quoteSchema);
 
 var save = function(stocks){
   var currentTime = moment().tz('America/New_York');
-  var openTime = moment({hour: 9, minute: 30});
-  var closeTime = moment({hour: 16});
+  var openTime = moment().tz('America/New_York').hours(9).minutes(30).seconds(0);
+  var closeTime = moment().tz('America/New_York').hours(16).minutes(0).seconds(0);
+  var tradingHours = moment.range(openTime, closeTime)
+
   var db = mongoose.connection;
 
-  if (currentTime.isBetween(openTime, closeTime)){
+  if (currentTime.within(tradingHours)){
     if (db.readyState === 0) {
       console.log("Connecting to database at", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time )");
       mongoose.connect('mongodb://localhost/test');
@@ -53,6 +56,7 @@ var save = function(stocks){
     mongoose.disconnect();
   }
 }
+
 
 
 module.exports = save;
