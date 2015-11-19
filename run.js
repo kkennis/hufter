@@ -18,5 +18,12 @@ setInterval(function(){
     var request = new XMLHttpRequest();
     request.open('GET', "http://localhost:3000/quotes/save", true);
     request.send();
+    request.onload = function(reponse){
+      if (request.status >= 200 && request.status < 400) {
+        console.log(request.responseText)
+      } else {
+        console.log("Server error", request.status);
+      }
+    }
   }
 }, 30000);

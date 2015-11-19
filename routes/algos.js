@@ -21,16 +21,16 @@ function aesEncrypt(string,key){
   return encryptedString;
 }
 
-router.post('/', function(req, res, next){
+router.get('/', function(req, res, next){
   // var encryptedAlgo = req.body.data;
   // Decrypt algo and turn into function
   // Also check delta-t
 
   // How to best send post data?
+  var data = aesDecrypt(decodeURIComponent(req.query.data), key);
+  data = JSON.parse(data);
 
   new Promise(function(resolve, reject){
-    var data = JSON.parse(aesDecrypt(req.body.data, key));
-
     var testingAlgo = (new Function('return ' + data.algo))(); 
 
     var stockData = YFhistoricaldata.getAllData(JSON.parse(data.symbols), data.startDate, data.endDate);
@@ -38,9 +38,12 @@ router.post('/', function(req, res, next){
     if (stockData) { resolve(stockData); } 
     else { reject(Error("API Error")); }
   })
-  .then(function(data){
-    // backtest(decryptedAlgo, JSON.parse(req.body.symbols, data.results) );
-    return backtest(data.algo, JSON.parse(req.body.symbols), data.results);
+  .then(function(stockData){
+    // backtest(decryptedAlgo, JSON.parse(req.body.symbols, stockData.results) );
+    var results = backtest(testingAlgo, JSON.parse(data.symbols), stockData.results);
+    console.log("Backtest done...")
+    console.log(results)
+    return results;
   })
   .then(function(results){ res.json(results); },
         function(error){ res.send(error); });  

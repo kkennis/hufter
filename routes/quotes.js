@@ -31,40 +31,59 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/save', function(req, res, next) {
-  console.log("Saving...");
+  if (db.readyState === 0){
+    mongoose.connect('mongodb://localhost/test');
+    console.log("Connecting...");
+    res.end("Connected to database at " + new Date().toString());
+  } else {
+    console.log("Saving...");
+    Ticker.find({},function(err, tickers){
+      var symbols = tickers.map(function(ticker){
+        return ticker["name"];
+      })
 
-  mongoose.connect('mongodb://localhost/test');
-
-
-  db.once('open', function(){
-      Ticker.find({},function(err, tickers){
-        var symbols = tickers.map(function(ticker){
-          return ticker["name"];
-        })
-
-        new Promise(function(resolve, reject){
-          response = YFquotes.getLastTrade(uniq(symbols));
-          resolve(response);
-        })
-        .then(function(response){
-          if (Object.keys(response).length !== 0){
-            saveToMongo(response);
-            res.end("Request received at " + new Date().toString());
-          } else {
-            res.send(response);
-            res.end("Yahoo API Error")
-          }
-        })
-      });
-  });
-
+      new Promise(function(resolve, reject){
+        response = YFquotes.getLastTrade(uniq(symbols));
+        resolve(response);
+      })
+      .then(function(response){
+        if (Object.keys(response).length !== 0){
+          saveToMongo(response);
+          res.end("Data saved at " + new Date().toString());
+        } else {
+          res.send(response);
+          res.end("Yahoo API Error")
+        }
+      })
+    });
+  }
 });
+
+router.get('/save/all', function(req, res, next){
+  if (db.readyState === 0){
+    mongoose.connect('mongodb://localhost/test');
+    console.log("Connecting...");
+    res.end("Connected to database at " + new Date().toString());
+  } else {
+    console.log("Retrieving list of stocks...");
+    Ticker.find({},function(err, tickers){
+      var symbols = tickers.map(function(ticker){
+        return ticker["name"];
+      })
+      res.end(uniq(symbols).join(", "))
+    });
+  }
+})
+
 
 router.get('/save/:ticker', function(req, res, next){
   console.log("Saving ticker...", req.params.ticker.toString('utf8'));
-  mongoose.connect('mongodb://localhost/test');
 
-  db.once('open', function(){
+  if (db.readyState === 0){
+    mongoose.connect('mongodb://localhost/test');
+    console.log("Connecting...");
+    res.end("Connected to database at " + new Date().toString() + ". Please make request again.");
+  } else {
     var newSymbol = new Ticker({ name: req.params.ticker.toString('utf8') });
     
     newSymbol.save(function(err, symbol){
@@ -76,9 +95,16 @@ router.get('/save/:ticker', function(req, res, next){
         mongoose.disconnect();
       }
     });
+  }
 
-  });
 
+});
+
+router.get('/disconnect', function(req, res, next){
+  if (db.readyState === 1){
+    mongoose.disconnect();
+  }
+  res.end("Disconnected from database at " + new Date().toString());
 });
 
 module.exports = router;
