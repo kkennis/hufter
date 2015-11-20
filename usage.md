@@ -2,8 +2,10 @@
 
 First time:
 
-1. Required dependencies: Node.js, MongoDB, nodemon
-2. Navigate to root directory of hufter and run `npm install`
+1. Clone this repo
+2. Navigate to branch `mongo-add-tickers`
+3. Required dependencies: Node.js, MongoDB, npm, nodemon
+4. Navigate to root directory of hufter and run `npm install`
 
 To run:
 
