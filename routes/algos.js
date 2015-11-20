@@ -29,9 +29,9 @@ router.get('/', function(req, res, next){
   // How to best send post data?
   var data = aesDecrypt(decodeURIComponent(req.query.data), key);
   data = JSON.parse(data);
+  console.log(data);
 
   new Promise(function(resolve, reject){
-    var testingAlgo = (new Function('return ' + data.algo))(); 
 
     var stockData = YFhistoricaldata.getAllData(JSON.parse(data.symbols), data.startDate, data.endDate);
 
@@ -39,14 +39,13 @@ router.get('/', function(req, res, next){
     else { reject(Error("API Error")); }
   })
   .then(function(stockData){
-    // backtest(decryptedAlgo, JSON.parse(req.body.symbols, stockData.results) );
+    var testingAlgo = (new Function('return ' + data.algo))(); 
     var results = backtest(testingAlgo, JSON.parse(data.symbols), stockData.results);
-    console.log("Backtest done...")
-    console.log(results)
+
     return results;
   })
   .then(function(results){ res.json(results); },
-        function(error){ res.send(error); });  
+        function(error){ res.end(error); });  
 });
 
 module.exports = router;
