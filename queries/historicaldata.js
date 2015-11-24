@@ -7,6 +7,7 @@ function getStockData(symbols, metrics, startDate, endDate){
   else if (R.type(metrics) === "String") { metrics = metrics + ", Symbol"}
   else if (R.type(metrics) === "Array") { metrics = metrics.concat(["Date", "Symbol"]).join(",") }
 
+  console.log(typeof symbols)
   if (!symbols) { symbols = '"SPY"' } 
   else if (R.type(symbols) === "String") { symbols = '"' + symbols + '"' }
   else if (R.type(symbols) === "Array") { symbols = JSON.stringify(symbols).slice(1, -1) }
@@ -32,6 +33,8 @@ function getStockData(symbols, metrics, startDate, endDate){
   // Build the full query URL here - whole point is to make the query itself more flexible if
   // we need to change it later. Note I'm encoding the query string
   var fullQuery = rootPath + encodeURIComponent(query) + extraParams;
+
+  console.log(fullQuery)
 
   var XMLHttpRequest = xhr.XMLHttpRequest;
   var request = new XMLHttpRequest();

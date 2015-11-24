@@ -5,11 +5,13 @@ var YFhistoricaldata = require('../queries/historicaldata.js');
 router.get('/', function(req, res, next) {
   var response;
 
+  var symbols = req.query.symbols.split(",")
+
   if (req.query.metrics) {
     metrics = decodeURIComponent(req.query.metrics).split(",");
-    response = YFhistoricaldata.getHistoricalData(req.query.symbols, metrics, req.query.startDate, req.query.endDate);
+    response = YFhistoricaldata.getHistoricalData(symbols, metrics, req.query.startDate, req.query.endDate);
   } else {
-    response = YFhistoricaldata.getAllData(req.query.symbols, req.query.startDate, req.query.endDate);
+    response = YFhistoricaldata.getAllData(symbols, req.query.startDate, req.query.endDate);
   }
 
   res.json(response);
