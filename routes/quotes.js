@@ -72,17 +72,14 @@ router.get('/save/all', function(req, res, next){
 
 router.get('/save/:ticker', function(req, res, next){
   console.log("Saving ticker...", req.params.ticker.toString('utf8'));
-    var newSymbol = new Ticker({ name: req.params.ticker.toString('utf8') });    
-    newSymbol.save(function(err, symbol){
-      if (err){
-        res.end("Error saving stock")
-      } else {
-        res.end("Successfully saved stock")
-      }
-    });
-  }
-
-
+  var newSymbol = new Ticker({ name: req.params.ticker.toString('utf8') });    
+  newSymbol.save(function(err, symbol){
+    if (err){
+      res.end("Error saving stock")
+    } else {
+      res.end("Successfully saved stock")
+    }
+  });
 });
 
 router.get('/disconnect', function(req, res, next){
@@ -91,5 +88,7 @@ router.get('/disconnect', function(req, res, next){
   }
   res.end("Disconnected from database at " + new Date().toString());
 });
+
+
 
 module.exports = router;

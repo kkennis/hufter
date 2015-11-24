@@ -34,8 +34,6 @@ function getStockData(symbols, metrics, startDate, endDate){
   // we need to change it later. Note I'm encoding the query string
   var fullQuery = rootPath + encodeURIComponent(query) + extraParams;
 
-  console.log(fullQuery)
-
   var XMLHttpRequest = xhr.XMLHttpRequest;
   var request = new XMLHttpRequest();
   request.open('GET', fullQuery, false);

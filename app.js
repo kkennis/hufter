@@ -3,6 +3,8 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose')
+var db = mongoose.connection;
 
 var index = require('./routes/index');
 var quotes = require('./routes/quotes');
@@ -64,6 +66,14 @@ app.use(function(err, req, res, next) {
     message: err.message,
     error: {}
   });
+});
+
+// Disconnect from MongoDB if connection is open
+process.on('exit', function(){
+  if (db.readyState === 1){
+    console.log("Disconnecting from database...")
+    mongoose.disconnect();
+  }
 });
 
 

@@ -7,8 +7,8 @@ function getStockData(symbols, metrics){
   else if (R.type(metrics) === "String") { metrics = metrics + ", Symbol"}
   else if (R.type(metrics) === "Array") { metrics = metrics.concat("Symbol").join(',') }
 
-  if (!symbols) { symbols = '"SPY"' } 
-  else if (R.type(symbols) === "String") { symbols = '"' + symbols + '"' }
+  if (!symbols) { symbols = 'SPY' } 
+  // else if (R.type(symbols) === "String") { symbols = '"' + symbols + '"' }
   else if (R.type(symbols) === "Array") { symbols = symbols.join('","') }
 
 

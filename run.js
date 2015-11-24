@@ -25,5 +25,7 @@ setInterval(function(){
         console.log("Server error", request.status);
       }
     }
+  } else {
+    console.log(currentTime.format('lll'), 'is outside current trade hours')
   }
 }, 30000);
