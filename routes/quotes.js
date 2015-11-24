@@ -5,13 +5,19 @@ var saveToMongo = require('../queries/save.js');
 var mongoose = require('mongoose');
 var uniq = require('uniq')
 
-var tickerSchema, Ticker, db;
+var tickerSchema = mongoose.Schema({ name: String });
+var Ticker = mongoose.model('Ticker', tickerSchema);
+var db = mongoose.connection;
 
-tickerSchema = mongoose.Schema({ name: String });
 
-Ticker = mongoose.model('Ticker', tickerSchema);
+router.use('/save*', function(req, res, next){
+  if (db.readyState === 0) {
+    console.log("Connecting");
+    mongoose.connect('mongodb://localhost/test');
+  }
 
-db = mongoose.connection;
+  next();
+})
 
 
 router.get('/', function(req, res, next) {
@@ -31,68 +37,47 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/save', function(req, res, next) {
-  if (db.readyState === 0){
-    mongoose.connect('mongodb://localhost/test');
-    console.log("Connecting...");
-    res.end("Connected to database at " + new Date().toString());
-  } else {
-    console.log("Saving...");
-    Ticker.find({},function(err, tickers){
-      var symbols = tickers.map(function(ticker){
-        return ticker["name"];
-      })
+  console.log("Saving...");
+  Ticker.find({},function(err, tickers){
+    var symbols = tickers.map(function(ticker){
+      return ticker["name"];
+    })
 
-      new Promise(function(resolve, reject){
-        response = YFquotes.getLastTrade(uniq(symbols));
-        resolve(response);
-      })
-      .then(function(response){
-        if (Object.keys(response).length !== 0){
-          saveToMongo(response);
-          res.end("Data saved at " + new Date().toString());
-        } else {
-          res.send(response);
-          res.end("Yahoo API Error")
-        }
-      })
-    });
-  }
+    new Promise(function(resolve, reject){
+      response = YFquotes.getLastTrade(uniq(symbols));
+      resolve(response);
+    })
+    .then(function(response){
+      if (Object.keys(response).length !== 0){
+        saveToMongo(response);
+        res.end("Data saved at " + new Date().toString());
+      } else {
+        res.send(response);
+        res.end("Yahoo API Error")
+      }
+    })
+  });
 });
 
 router.get('/save/all', function(req, res, next){
-  if (db.readyState === 0){
-    mongoose.connect('mongodb://localhost/test');
-    console.log("Connecting...");
-    res.end("Connected to database at " + new Date().toString());
-  } else {
-    console.log("Retrieving list of stocks...");
-    Ticker.find({},function(err, tickers){
-      var symbols = tickers.map(function(ticker){
-        return ticker["name"];
-      })
-      res.end(uniq(symbols).join(", "))
-    });
-  }
+  console.log("Retrieving list of stocks...");
+  Ticker.find({},function(err, tickers){
+    if (err) res.end(err);
+
+    var symbols = tickers.map((ticker) => ticker["name"])
+    res.end(uniq(symbols).join(", "))
+  });
 })
 
 
 router.get('/save/:ticker', function(req, res, next){
   console.log("Saving ticker...", req.params.ticker.toString('utf8'));
-
-  if (db.readyState === 0){
-    mongoose.connect('mongodb://localhost/test');
-    console.log("Connecting...");
-    res.end("Connected to database at " + new Date().toString() + ". Please make request again.");
-  } else {
-    var newSymbol = new Ticker({ name: req.params.ticker.toString('utf8') });
-    
+    var newSymbol = new Ticker({ name: req.params.ticker.toString('utf8') });    
     newSymbol.save(function(err, symbol){
       if (err){
         res.end("Error saving stock")
-        mongoose.disconnect();
       } else {
         res.end("Successfully saved stock")
-        mongoose.disconnect();
       }
     });
   }

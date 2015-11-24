@@ -21,11 +21,6 @@ var save = function(stocks){
   var db = mongoose.connection;
 
   if (currentTime.within(tradingHours)){
-    if (db.readyState === 0) {
-      console.log("Connecting to database at", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), " market time )");
-      mongoose.connect('mongodb://localhost/test');
-    }
-
     db.on('error', console.error.bind(console, 'connection error:'));
 
     if (db.readyState === 1) {
