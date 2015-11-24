@@ -7,7 +7,7 @@ function runBacktest(algo, stocks, data){
   var numPeriods = null;
 
   // Does this even need to be a promise?  
-  return new Promise(function(resolve, reject){
+    console.log("Promising...");
 
     stocks.forEach(function(stock){
       results[stock] = {};
@@ -19,7 +19,12 @@ function runBacktest(algo, stocks, data){
       if (!numPeriods) numPeriods = stockData.length;
 
       // Probably needs refactoring/better algorithm. Double nesting not good
-      results[stock]["signals"] = algo(stockData);
+      // console.log("Stock symbol 2", stockData);
+      filteredData = stockData.map(function(quote){
+        return [quote["Date"], quote["Close"]]
+      });
+
+      results[stock]["signals"] = algo(filteredData);
 
       var buySignals = results[stock]["signals"]["buy"].map(R.last).map(parseFloat);
       var totalBought = buySignals.reduce((memo, val) => memo + val);
@@ -90,9 +95,10 @@ function runBacktest(algo, stocks, data){
 
     results["TotalStats"] = overallStats;
 
+    // console.log(results)
 
-    resolve(results);
-  });
+
+    return results;
 
 
   /*
