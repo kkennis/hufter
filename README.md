@@ -1,10 +1,13 @@
 # Hufter: An Easier Stock API
 
-Hufter is a wrapper for the YQL finance API. It has an easy-to-use, declarative style with RESTful routes and flexible options.
+Hufter is a tool for gathering, querying, and backtesting stock quote data. Utilizing the Yahoo Finance API, it  has an easy-to-use, declarative style with RESTful routes and flexible options. There are four main utilities in Hufter: real-time quotes, daily historical data, algorithm backtesting, and persistent quote data gathering through MongoDB.
 
-To use the API, simply append your desired API to the root path, then your desired stock ticker (e.g. http://[root]/quote/GOOG). The base route will give you the price of the last trade for your requested stock, along with the resolution time of your request (included for all queries). Add query parameters to customize your request:
+### Backtesting Engine (`/backtest`) 
+_Very much in progress_
 
-## Quote API (`/quote`): 
+POST a JavaScript algorithm as text (x-www-form-encoded), a stringified array of quotes, and `startDate` and `endDate` params. Outputs JSON containing buy/sell signals for the algorithm along with other pertinent stats.
+
+### Quote Data (`/quote`): 
 
 Provides real-time price information from Yahoo Finance along with a variety of metrics.
 
@@ -125,7 +128,32 @@ Returns:
 ]
 ```
 
-## Historical Data API (`/historicaldata`)
+### Persistent Quote Gathering (`/quote/save/`)
+
+Required dependencies: Node.js, MongoDB, npm, nodemon
+
+First time:
+Navigate to root directory of hufter and run `npm install`
+
+To run:
+
+1. Make sure Mongo server is running (if not, run command `mongod`)
+2. Spin up API by running `nodemon` from root directory (will run from port 3000). Process also logs useful console output.
+
+Run example script `run.js` to make requests to API every 30 seconds and save to MongoDB
+
+Other:
+
+* To explicitly call the API to save data, go to http://localhost:3000/quotes/save/ (will save currently tracked stocks). You shoul receive a confirmation response.
+* To view list of tracked stocks, view in Mongo shell (collection is named tickers)
+* To add a tracked stock to the list, go to http://localhost:3000/quotes/save/[SYM] where [SYM] is the name of the symbol you would like to track (e.g. TWTR). You should receive a confirmation response.
+* To disconnect from database, go to http://localhost:3000/quotes/disconnect/
+
+API is best interacted with with Postman.
+
+If you get a response to any request that says "Connected to database at...", hit the route again. Connecting to the database will preclude all other actions.
+
+### Historical Data API (`/historicaldata`)
 
 Provides daily historical data information back to 1996/04/12.
 
@@ -141,11 +169,49 @@ Provides daily historical data information back to 1996/04/12.
   * Close
   * Volume
   * Adj_Close
+  
+Usage:
 
-## Backtesting Engine (`/backtest`)
+```
+GET /historicaldata?symbols=AAPL%2CMSFT&metrics=Open%2CClose&startDate=2015-01-01
+```
+Returns:
+```
 
-Post a JavaScript algorithm as text, along with startDate and endDate params. Outputs JSON containing
-buy/sell signals for the algorithm along with other pertinent stats.
+{
+  "results": [
+    {
+      "Symbol": "AAPL",
+      "Open": "119.199997",
+      "Close": "119.300003",
+      "Date": "2015-11-20"
+    },
+    {
+      "Symbol": "AAPL",
+      "Open": "117.639999",
+      "Close": "118.779999",
+      "Date": "2015-11-19"
+    },
+    ...
+        {
+      "Symbol": "MSFT",
+      "Open": "46.369999",
+      "Close": "46.330002",
+      "Date": "2015-01-05"
+    },
+    {
+      "Symbol": "MSFT",
+      "Open": "46.66",
+      "Close": "46.759998",
+      "Date": "2015-01-02"
+    }
+  ],
+  "ResolutionTime": "928"
+}
+    
+```
+  
+
 
 
 
