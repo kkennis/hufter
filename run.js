@@ -1,5 +1,4 @@
 var xhr = require('xmlhttprequest');
-var mongoose = require('mongoose');
 var moment = require('moment');
 var tz = require('moment-timezone');
 var range = require('moment-range');
