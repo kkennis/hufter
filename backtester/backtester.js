@@ -1,10 +1,14 @@
 var YFhistoricaldata = require('../queries/historicaldata.js');
+var testAlgo = require('../testalgo.js')
 var R = require('ramda');
 
 
 function runBacktest(algo, stocks, data){
   var results = {};
   var numPeriods = null;
+
+  // TODO: Band-aid
+  if (!algo) algo = testAlgo;
 
   // Does this even need to be a promise?  
   stocks.forEach(function(stock){

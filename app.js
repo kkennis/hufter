@@ -1,3 +1,9 @@
+// Refactoring:
+// ES6 Syntax
+// Needle instead of XMLHttpRequest
+// Don't change interface!!
+// Make CORS more secure
+// JS Date parser
 require('dotenv').load();
 
 var express = require('express');
@@ -10,6 +16,7 @@ var index = require('./routes/index');
 var quotes = require('./routes/quotes');
 var historicaldata = require('./routes/historicaldata');
 var backtest = require('./routes/backtest');
+var database = require('./routes/db')
 
 var app = express();
 
@@ -38,6 +45,7 @@ app.use('/', index);
 app.use('/quotes', quotes);
 app.use('/historicaldata', historicaldata);
 app.use('/backtest', backtest);
+// app.use('/db', database)
 
 
 // catch 404 and forward to error handler

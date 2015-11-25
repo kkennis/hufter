@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var moment = require('moment');
 var tz = require('moment-timezone');
 var range = require('moment-range');
-var YFquotes = require('./quotes');
+var YFquotes = require('../queries/quotes');
 
 var quoteSchema = mongoose.Schema({
   symbol: String,

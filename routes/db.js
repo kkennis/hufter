@@ -1,3 +1,5 @@
+// REFACTOR THIS
+
 var express = require('express');
 var router = express.Router();
 var YFquotes = require('../queries/quotes.js');

@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var moment = require('moment');
 var tz = require('moment-timezone');
 var range = require('moment-range');
-var YFquotes = require('./quotes');
+var YFquotes = require('../queries/quotes');
 
 var db = mongoose.connection;
 var host = process.env["DB_HOST"]
@@ -10,8 +10,7 @@ var host = process.env["DB_HOST"]
 var tickerSchema = mongoose.Schema({ name: String });
 var Ticker = mongoose.model('Ticker', tickerSchema);
 
-
-Ticker.find({})
+// Functional mongo calls
 
 
 

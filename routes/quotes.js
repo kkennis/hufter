@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var YFquotes = require('../queries/quotes.js');
-var saveToMongo = require('../queries/save.js');
 
 router.get('/', function(req, res, next) {
   var response;
