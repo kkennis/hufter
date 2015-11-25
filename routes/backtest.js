@@ -7,7 +7,7 @@ var CryptoJS = require("crypto-js");
 var AES = require("crypto-js/aes");
 var SHA256 = require("crypto-js/sha256");
 
-var key = "yolocity";
+var key = process.env["ENCRYPT_KEY"];
 
 function aesDecrypt(string,key){
   var decrypted = AES.decrypt(string, key);
@@ -31,7 +31,6 @@ router.get('/', function(req, res, next){
   // How to best send post data?
   var data = aesDecrypt(decodeURIComponent(req.query.data), key);
   data = JSON.parse(data);
-  console.log(data);
 
   new Promise(function(resolve, reject){
 
