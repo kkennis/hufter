@@ -21,6 +21,8 @@ function aesEncrypt(string,key){
   return encryptedString;
 }
 
+
+// THIS should be post
 router.get('/', function(req, res, next){
   // var encryptedAlgo = req.body.data;
   // Decrypt algo and turn into function
