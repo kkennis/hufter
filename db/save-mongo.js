@@ -19,9 +19,8 @@ var save = function(stocks){
                                         lastTradePrice: stock["LastTradePriceOnly"],
                                         timestamp: new Date().getTime()
                                     });
+        currentQuote.save((err, data) => console.log("Quote for", stock["Symbol"], "saved at", moment().format('lll')))
 
-        console.log("Quote for", stock["Symbol"], "saving at", moment().format('lll'))
-        
       } else {
         console.log("Could not save trade data for ", stock["Symbol"], " at ", moment().format('lll'), "(", moment().tz('America/New_York').format('lll'), "market time )");
         reject("Things haven't saved!")
