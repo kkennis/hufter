@@ -1,6 +1,5 @@
 var _ = require('ramda');
-var xhr = require('xmlhttprequest')
-// var needle = require('needle');
+var needle = require('needle');
 // TODO: Implement needle, use generators, make functionals
 
 
@@ -18,29 +17,16 @@ var getStockData = function (symbols, metrics){
   var extraParams = '&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';
   var fullQuery = rootPath + encodeURIComponent(query) + extraParams;
 
-  var stockData = {};
-  var XMLHttpRequest = xhr.XMLHttpRequest;
-  var request = new XMLHttpRequest();
-  request.open('GET', fullQuery, false);
 
-  request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
-      stockJSON = JSON.parse(request.responseText);
-      stockData = stockJSON["query"]["results"]["quote"];
-      stockData.ResolutionTime = stockJSON["query"]["diagnostics"]["user-time"];
-    } else {
-      console.log("Server error", request.status);
-    }
-  };
+  return new Promise(function(resolve, reject){
+    needle.get(fullQuery, function(err, res){
+      if (err) reject(err);
 
-  request.onerror = function() {
-    console.log("Error: Could not connect");
-  };
-
-  request.send();
-
-  return stockData;
-
+      var stockData = res.body["query"]["results"]["quote"];
+      stockData.ResolutionTime = res.body["query"]["diagnostics"]["user-time"];
+      resolve(stockData);
+    })
+  });
 };
 
 

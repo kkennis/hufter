@@ -12,12 +12,13 @@ router.get('/', function(req, res, next) {
 
   if (req.query.metrics) {
     metrics = decodeURIComponent(req.query.metrics).split(",");
-    response = YFhistoricaldata.getHistoricalData(symbols, metrics, req.query.startDate, req.query.endDate);
+    YFhistoricaldata.getHistoricalData(symbols, metrics, req.query.startDate, req.query.endDate)
+      .then((response) => res.json(response));
   } else {
-    response = YFhistoricaldata.getAllData(symbols, req.query.startDate, req.query.endDate);
+    YFhistoricaldata.getAllData(symbols, req.query.startDate, req.query.endDate)
+      .then((response) => res.json(response));;
   }
 
-  res.json(response);
 });
 
 

@@ -6,14 +6,18 @@ router.get('/', function(req, res, next) {
   var response;
 
   if (req.query.volume === "true"){
-    res.json(YFquotes.getLastTradeWithVolume(req.query.symbols));
+    YFquotes.getLastTradeWithVolume(req.query.symbols)
+      .then((response) => res.json(response));
   } else if (req.query.alldata === "true"){
-    res.json(YFquotes.getAllData(req.query.symbols));
+    YFquotes.getAllData(req.query.symbols)
+      .then((response) => res.json(response));
   } else if (req.query.metrics){
-    res.json(YFquotes.getStockData(req.query.symbols,
-               decodeURIComponent(req.query.metrics).split(",")));
+    YFquotes.getStockData(req.query.symbols,
+      decodeURIComponent(req.query.metrics).split(","))
+      .then((response) => res.json(response))
   } else {
-    res.json(YFquotes.getLastTrade(req.query.symbols))
+    YFquotes.getLastTrade(req.query.symbols)
+      .then((response) => res.json(response))
   }
 });
 
