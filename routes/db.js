@@ -1,10 +1,7 @@
-// REFACTOR THIS
-
 var express = require('express');
 var router = express.Router();
 var YFquotes = require('../queries/quotes.js');
 var mongoose = require('mongoose');
-var uniq = require('uniq');
 
 var db = mongoose.connection;
 var host = process.env["DB_HOST"]

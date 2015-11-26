@@ -1,4 +1,3 @@
-// REFACTOR THIS
 var express = require('express');
 var router = express.Router();
 var YFhistoricaldata = require('../queries/historicaldata.js');

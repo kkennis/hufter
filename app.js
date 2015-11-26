@@ -1,7 +1,8 @@
 // Refactoring:
 // ES6 Syntax (imports/exports, Generators?)
 // Make CORS more secure
-// JS Date parser
+// JS Date parser (Use twix is moment still sucks)
+// POST an algorithm
 
 require('dotenv').load();
 
@@ -39,7 +40,6 @@ app.use(function(req, res, next) {
  next();
 });
 
-// TODO: Make db saves their own route tree
 app.use('/', index);
 app.use('/quotes', quotes);
 app.use('/historicaldata', historicaldata);
