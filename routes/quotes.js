@@ -13,7 +13,6 @@ router.get('/', function(req, res, next) {
     res.json(YFquotes.getStockData(req.query.symbols,
                decodeURIComponent(req.query.metrics).split(",")));
   } else {
-    // console.log("Yolo city")
     res.json(YFquotes.getLastTrade(req.query.symbols))
   }
 });

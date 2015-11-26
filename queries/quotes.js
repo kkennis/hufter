@@ -3,13 +3,14 @@ var xhr = require('xmlhttprequest')
 // var needle = require('needle');
 // TODO: Implement needle, use generators, make functionals
 
+
 var getStockData = function (symbols, metrics){
 
-  if (!metrics) { metrics = '*' } 
+  if (!metrics) { metrics = '*' }
   else if (_.type(metrics) === "String") { metrics = metrics + ", Symbol"}
   else if (_.type(metrics) === "Array") { metrics = metrics.concat("Symbol").join(',') }
 
-  if (!symbols) { symbols = 'SPY' } 
+  if (!symbols) { symbols = 'SPY' }
   else if (_.type(symbols) === "Array") { symbols = symbols.join('","') }
 
   var rootPath = 'https://query.yahooapis.com/v1/public/yql?q=';

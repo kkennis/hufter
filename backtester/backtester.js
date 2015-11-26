@@ -1,97 +1,81 @@
 var YFhistoricaldata = require('../queries/historicaldata.js');
 var testAlgo = require('../testalgo.js')
-var R = require('ramda');
+var _ = require('ramda');
 
 
-function runBacktest(algo, stocks, data){
+function runBacktest(algo, data){
   var results = {};
   var numPeriods = null;
+  var sum = _.reduce(_.add, 0);
 
-  // TODO: Band-aid
-  if (!algo) algo = testAlgo;
+  // Does this even need to be a promise?
+  var stocks = _.groupBy((stock) => stock['Symbol'], data);
 
-  // Does this even need to be a promise?  
-  stocks.forEach(function(stock){
+  Object.keys(stocks).forEach(function(stock){
     results[stock] = {};
 
-    var stockData = data.filter(function(entry){
-      return entry["Symbol"] === stock;
-    });
-
+    var stockData = stocks[stock];
     if (!numPeriods) numPeriods = stockData.length;
+    var formattedData = _.map((quote) => [quote["Date"], quote["Close"]], stockData)
 
-    // Probably needs refactoring/better algorithm. Double nesting not good
-    // console.log("Stock symbol 2", stockData);
-    filteredData = stockData.map(function(quote){
-      return [quote["Date"], quote["Close"]]
-    });
 
-    results[stock]["signals"] = algo(filteredData);
+    results[stock]["signals"] = algo(formattedData);
 
-    var buySignals = results[stock]["signals"]["buy"].map(R.last).map(parseFloat);
-    var totalBought = buySignals.reduce((memo, val) => memo + val);
+    var getSignals = (signal) => results[stock]["signals"][signal];
+    var parseSignals = _.pipe(getSignals, _.map(_.pipe(_.last, parseFloat)));
 
-    var sellSignals = results[stock]["signals"]["sell"].map(R.last).map(parseFloat); 
-    var totalSold = sellSignals.reduce((memo, val) => memo + val);
+    var buySignals = parseSignals("buy");
+    var totalBought = sum(buySignals);
+
+    var sellSignals = parseSignals("sell");
+    var totalSold = sum(sellSignals);
 
     results[stock]["TotalBought"] = totalBought;
     results[stock]["TotalSold"] = totalSold;
     results[stock]["ROI"] = (totalSold - totalBought) / totalBought;
     results[stock]["GrossReturn"] = totalSold - totalBought;
 
-    var totalVolume = stockData.map(function(datum){
-                        return parseInt(datum["Volume"], 10);
-                      }).reduce((memo, val) => memo + val);
+    var getVolume = (stock) => stock["Volume"];
+    var sumVolume = _.pipe(_.map(_.pipe(getVolume, parseInt)), sum)
+    var totalVolume = sumVolume(stockData)
 
     results[stock]["TotalVolume"] = totalVolume;
-    results[stock]["AverageDailyVolume"] = totalVolume / stockData.length; 
-    // Buy/Sell Count & Buys/Sells per day
+    results[stock]["AverageDailyVolume"] = totalVolume / stockData.length;
 
     results[stock]["TotalBuys"] = buySignals.length;
     results[stock]["TotalSells"] = sellSignals.length;
-    results[stock]["BuysPerPeriod"] = buySignals.length /  numPeriods;
-    results[stock]["SellsPerPeriod"] = sellSignals.length /  numPeriods;
-    
+    results[stock]["BuysPerPeriod"] = buySignals.length / numPeriods;
+    results[stock]["SellsPerPeriod"] = sellSignals.length / numPeriods;
+
     results[stock]["TotalTrades"] = buySignals.length + sellSignals.length;
   });
 
   var overallStats = {};
 
-  var overallBought = Object.keys(results)
-                            .map((stock) => results[stock]["TotalBought"])
-                            .reduce((memo, val) => memo + val);
+  var getStock = (stock) => results[stock];
+  var getMetric = _.curry((metric, quote) => quote[metric]);
 
-  var overallSold = Object.keys(results)
-                          .map((stock) => results[stock]["TotalSold"])
-                          .reduce((memo, val) => memo + val);
+  var getTotal = (metric) => _.pipe(_.map(_.pipe(getStock, getMetric(metric))), sum)(Object.keys(results));
+
+  var overallBought = getTotal("TotalBought")
+  var overallSold = getTotal("TotalSold")
+
 
   overallStats["TotalBought"] = overallBought;
   overallStats["TotalSold"] = overallSold;
   overallStats["ROI"] = (overallSold - overallBought) / overallBought;
   overallStats["GrossReturn"] = overallSold - overallBought;
 
-  var overallVolume = Object.keys(results)
-                            .map((stock) => results[stock]["TotalVolume"])
-                            .reduce((memo, val) => memo + val);
+  var overallVolume = getTotal("TotalVolume");
 
   overallStats["TotalVolume"] = overallVolume
   overallStats["AverageDailyVolume"] = overallVolume / Object.keys(results).length;
 
-  overallStats["TotalBuys"] = Object.keys(results)
-                                    .map((stock) => results[stock]["TotalBuys"])
-                                    .reduce((memo, val) => memo + val);
+  overallStats["TotalBuys"] = getTotal("TotalBuys")
+  overallStats["TotalSells"] = getTotal("TotalSells")
 
-  overallStats["TotalSells"] = Object.keys(results)
-                                     .map((stock) => results[stock]["TotalSells"])
-                                     .reduce((memo, val) => memo + val);
-
-  overallStats["BuysPerPeriod"] = Object.keys(results)
-                                        .map((stock) => results[stock]["BuysPerPeriod"])
-                                        .reduce((memo, val) => memo + val);
-
-  overallStats["SellsPerPeriod"] = Object.keys(results)
-                                        .map((stock) => results[stock]["SellsPerPeriod"])
-                                        .reduce((memo, val) => memo + val);
+  overallStats["BuysPerPeriod"] = getTotal("BuysPerPeriod")
+  overallStats["SellsPerPeriod"] = getTotal("SellsPerPeriod")
 
   overallStats["TotalTrades"] = overallStats["TotalBuys"] + overallStats["TotalSells"];
 

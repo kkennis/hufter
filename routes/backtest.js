@@ -34,21 +34,22 @@ router.get('/', function(req, res, next){
   var data = aesDecrypt(decodeURIComponent(req.query.data), key);
   data = JSON.parse(data);
 
+  var symbols = JSON.parse(data.symbols).concat("TWTR")
+
   new Promise(function(resolve, reject){
 
-    var stockData = YFhistoricaldata.getAllData(JSON.parse(data.symbols), data.startDate, data.endDate);
+    var stockData = YFhistoricaldata.getAllData(symbols, data.startDate, data.endDate);
 
-    if (stockData) { resolve(stockData); } 
+    if (stockData) { resolve(stockData); }
     else { reject(Error("API Error")); }
   })
   .then(function(stockData){
-    var testingAlgo = (new Function('return ' + data.algo))(); 
-    var results = backtest(testingAlgo, JSON.parse(data.symbols), stockData.results);
+    var testingAlgo = (new Function('return ' + data.algo))();
 
-    return results;
+    return backtest(testingAlgo, stockData);
   })
   .then(function(results){ res.json(results); },
-        function(error){ res.end(error); });  
+        function(error){ res.end(error); });
 });
 
 module.exports = router;
