@@ -6,16 +6,16 @@ router.get('/', function(req, res, next) {
   var response;
 
   if (req.query.volume === "true"){
-    response = YFquotes.getLastTradeWithVolume(req.query.symbols);
+    res.json(YFquotes.getLastTradeWithVolume(req.query.symbols));
   } else if (req.query.alldata === "true"){
-    response = YFquotes.getAllData(req.query.symbols);
+    res.json(YFquotes.getAllData(req.query.symbols));
   } else if (req.query.metrics){
-    response = YFquotes.getStockData(req.query.symbols,
-               decodeURIComponent(req.query.metrics).split(","));
+    res.json(YFquotes.getStockData(req.query.symbols,
+               decodeURIComponent(req.query.metrics).split(",")));
   } else {
-    response = YFquotes.getLastTrade(req.query.symbols)
+    // console.log("Yolo city")
+    res.json(YFquotes.getLastTrade(req.query.symbols))
   }
-  res.json(response);
 });
 
 module.exports = router;

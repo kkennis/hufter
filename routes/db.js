@@ -12,25 +12,32 @@ var host = process.env["DB_HOST"]
 var getTickers = require('../db/query-mongo.js');
 var saveToMongo = require('../db/save-mongo.js');
 // var tickerSchema = mongoose.Schema({ name: String });
-// var Ticker = mongoose.model('Ticker', tickerSchema);
+var Ticker = mongoose.model('Ticker');
+var tickers;
 
-router.use('/save*', function(req, res, next){
+
+router.use('*', function(req, res, next){
   if (db.readyState === 0) {
-    console.log("Connecting...");
-    mongoose.connect(host);
+    Promise.resolve(mongoose.connect(host)).then(next());
+  } else {
+    next();
   }
-
-  next();
+   
 })
 
 router.get('/save', function(req, res, next) {
   console.log("Saving...");
 
   // Make this async sync
-  var tickers = getTickers();
-  var response = YFquotes.getLastTrade(tickers);
-  var saveStatus = saveToMongo(response)
-  res.end(saveStatus);
+  getTickers()
+    .then((tickers) => YFquotes.getLastTrade(tickers))
+    .then((response) => saveToMongo(response))
+    .then((saveStatuses, err) => res.end(err || saveStatuses)) 
+
+  // var tickers = getTickers();
+  // var response = YFquotes.getLastTrade(tickers);
+  // var saveStatus = saveToMongo(response)
+  // res.end(saveStatus);
 
 
 
@@ -57,26 +64,16 @@ router.get('/save', function(req, res, next) {
 });
 
 router.get('/save/all', function(req, res, next){
-  console.log("Retrieving list of stocks...");
-  Ticker.find({},function(err, tickers){
-    if (err) res.end(err);
-
-    var symbols = tickers.map((ticker) => ticker["name"])
-    res.end(uniq(symbols).join(", "))
-  });
+  getTickers().then((symbols) => res.end(symbols.join(", ")))
 })
 
 
 router.get('/save/:ticker', function(req, res, next){
   console.log("Saving ticker...", req.params.ticker.toString('utf8'));
   var newSymbol = new Ticker({ name: req.params.ticker.toString('utf8') });    
-  newSymbol.save(function(err, symbol){
-    if (err){
-      res.end("Error saving stock")
-    } else {
-      res.end("Successfully saved stock")
-    }
-  });
+
+  newSymbol.save()
+    .then((data, err) => res.end(err || "Successfully saved stock"))
 });
 
 router.get('/disconnect', function(req, res, next){
@@ -85,3 +82,5 @@ router.get('/disconnect', function(req, res, next){
   }
   res.end("Disconnected from database at " + new Date().toString());
 });
+
+module.exports = router;

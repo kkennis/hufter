@@ -45,7 +45,7 @@ app.use('/', index);
 app.use('/quotes', quotes);
 app.use('/historicaldata', historicaldata);
 app.use('/backtest', backtest);
-// app.use('/db', database)
+app.use('/db', database)
 
 
 // catch 404 and forward to error handler

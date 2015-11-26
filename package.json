@@ -19,6 +19,7 @@
     "moment-timezone": "^0.4.1",
     "mongoose": "^4.2.6",
     "morgan": "^1.6.1",
+    "needle": "^0.11.0",
     "ramda": "^0.18.0",
     "serve-favicon": "~2.3.0",
     "uniq": "^1.0.1",

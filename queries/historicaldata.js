@@ -1,13 +1,14 @@
 var R = require('ramda');
-var moment = require('moment');
 var xhr = require("xmlhttprequest");
+var moment = require('moment');
+// var needle = require('needle');
+// TODO: Implement needle, use generators, make functionals
 
 function getStockData(symbols, metrics, startDate, endDate){
   if (!metrics) { metrics = "*" } 
   else if (R.type(metrics) === "String") { metrics = metrics + ", Symbol"}
   else if (R.type(metrics) === "Array") { metrics = metrics.concat(["Date", "Symbol"]).join(",") }
 
-  console.log(typeof symbols)
   if (!symbols) { symbols = '"SPY"' } 
   else if (R.type(symbols) === "String") { symbols = '"' + symbols + '"' }
   else if (R.type(symbols) === "Array") { symbols = JSON.stringify(symbols).slice(1, -1) }
@@ -15,24 +16,13 @@ function getStockData(symbols, metrics, startDate, endDate){
   if (!startDate) { startDate = moment().subtract(1, 'years').format("YYYY-MM-DD") }
   if (!endDate) { endDate = moment().format("YYYY-MM-DD") }
 
-  // Initialize something to return
   var stockData = {};
-
-  // This will always be the same
   var rootPath = 'https://query.yahooapis.com/v1/public/yql?q=';
-
-  // I think this is a lot easier to read, it's more SQL-like, then we can 
-  // just run it through JS's native URI encoder. Also super easy to just
-  // drop in new queries through params (for future)
   var query = 'select ' + metrics + ' from yahoo.finance.historicaldata where symbol in (' + symbols + ')' + 
               ' and startDate = "' + startDate + '" and endDate="' + endDate + '"';
-
-  // These will also always be the same, as far as I understand.
   var extraParams = '&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';
-
-  // Build the full query URL here - whole point is to make the query itself more flexible if
-  // we need to change it later. Note I'm encoding the query string
   var fullQuery = rootPath + encodeURIComponent(query) + extraParams;
+
 
   var XMLHttpRequest = xhr.XMLHttpRequest;
   var request = new XMLHttpRequest();
@@ -41,7 +31,7 @@ function getStockData(symbols, metrics, startDate, endDate){
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
       stockJSON = JSON.parse(request.responseText);
-      stockData.results = stockJSON["query"]["results"]["quote"];
+      stockData = stockJSON["query"]["results"]["quote"];
       stockData.ResolutionTime = stockJSON["query"]["diagnostics"]["user-time"];
     } else {
       console.log("Server error " + request.status);
