@@ -1,9 +1,8 @@
 // Refactoring:
-// ES6 Syntax
-// Needle instead of XMLHttpRequest
-// Don't change interface!!
+// ES6 Syntax (Generators?)
 // Make CORS more secure
 // JS Date parser
+
 require('dotenv').load();
 
 var express = require('express');

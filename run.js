@@ -1,19 +1,19 @@
 var xhr = require('xmlhttprequest');
 var moment = require('moment');
-var tz = require('moment-timezone');
-var range = require('moment-range');
+require('moment-timezone');
+require('moment-range')
 
 
 
 // TODO: Fuck moment, use native JS dates. Probably separate module
-setInterval(function(){ 
+setInterval(function(){
 
   var currentTime = moment().tz('America/New_York');
   var openTime = moment().tz('America/New_York').hours(9).minutes(30).seconds(0);
   var closeTime = moment().tz('America/New_York').hours(16).minutes(0).seconds(0);
-  var tradingHours = moment.range(openTime, closeTime)
+  var tradingHours = moment.range(openTime.toDate(), closeTime.toDate())
 
-  if (currentTime.within(tradingHours)){
+  if (tradingHours.contains(currentTime.toDate())){
     console.log("Sending request at", new Date())
     var XMLHttpRequest = xhr.XMLHttpRequest;
     var request = new XMLHttpRequest();
