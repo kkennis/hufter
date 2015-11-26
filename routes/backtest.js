@@ -1,27 +1,11 @@
 // REFACTOR THIS
-
 var express = require('express');
 var router = express.Router();
 var YFhistoricaldata = require('../queries/historicaldata.js');
 var backtest = require('../backtester/backtester.js');
+var crypter = require('../backtester/encrypt.js')
 var algo = require('../testalgo.js');
-var CryptoJS = require("crypto-js");
-var AES = require("crypto-js/aes");
-var SHA256 = require("crypto-js/sha256");
 
-var key = process.env["ENCRYPT_KEY"];
-
-function aesDecrypt(string,key){
-  var decrypted = AES.decrypt(string, key);
-  var decryptedString = CryptoJS.enc.Utf8.stringify(decrypted);
-  return decryptedString;
-}
-
-function aesEncrypt(string,key){
-  var encrypted = AES.encrypt(string,key);
-  var encryptedString = encrypted.toString();
-  return encryptedString;
-}
 
 
 // THIS should be post
@@ -31,7 +15,7 @@ router.get('/', function(req, res, next){
   // Also check delta-t
 
   // How to best send post data?
-  var data = aesDecrypt(decodeURIComponent(req.query.data), key);
+  var data = crypter.decrypt(decodeURIComponent(req.query.data));
   data = JSON.parse(data);
 
   var symbols = JSON.parse(data.symbols).concat("TWTR")

@@ -1,5 +1,5 @@
 // Refactoring:
-// ES6 Syntax (Generators?)
+// ES6 Syntax (imports/exports, Generators?)
 // Make CORS more secure
 // JS Date parser
 
