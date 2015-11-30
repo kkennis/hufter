@@ -15,10 +15,10 @@ var save = function(stocks){
     stocks.forEach(function(stock){
       if (stock["LastTradePriceOnly"]) {
         var currentQuote = new Quote({
-                                        symbol: stock["Symbol"],
-                                        lastTradePrice: stock["LastTradePriceOnly"],
-                                        timestamp: new Date().getTime()
-                                    });
+          symbol: stock["Symbol"],
+          lastTradePrice: stock["LastTradePriceOnly"],
+          timestamp: new Date().getTime()
+        });
         currentQuote.save((err, data) => console.log("Quote for", stock["Symbol"], "saved at", moment().format('lll')))
 
       } else {
