@@ -8,11 +8,16 @@ test('default quote information', function(t){
 
 
   xhr.get(`${host}/quotes`, function(err, res){
-    // var { LastTradePriceOnly: lastTrade, Symbol: symbol, ResolutionTime: resTime } = res.body;
-
-
+    var lastTrade, symbol, resTime;
 
     t.notOk(err, 'No error was received');
+
+    if (res.body){
+      lastTrade = res.body["LastTradePriceOnly"];
+      symbol = res.body["Symbol"];
+      resTime = res.body["ResolutionTime"];
+    }
+
     t.equals(symbol, `SPY`, 'queries SPY ticker as default');
     t.ok(lastTrade, `retrieves information for last trade price`);
     t.ok(resTime, `gives resolution time of request`);
