@@ -41,6 +41,18 @@ test('default quote information with volume', function(t){
   })
 });
 
+test('quote information with all data', function(t){
+  t.plan(3);
+
+  xhr.get(`${host}/quotes?symbols=AAPL&alldata=true`, function(err, res){
+    var lastTrade, symbol, resTime;
+
+    t.notOk(err, 'No error was received');
+    t.equals(res.body["Symbol"], `AAPL`, `queries requested ticker`);
+    t.equals(Object.keys(res.body).length, 84, `retrieves all 84 metrics`);
+
+  })
+});
 
 test('custom metric information', function(t){
   t.plan(5);
