@@ -8,12 +8,13 @@ test('default quote information', function(t){
 
   xhr.get(`${host}/quotes`, function(err, res){
     var lastTrade, symbol, resTime;
+    var results = res.body["results"];
 
     t.notOk(err, 'No error was received');
 
-    if (res.body){
-      lastTrade = res.body["LastTradePriceOnly"];
-      symbol = res.body["Symbol"];
+    if (results){
+      lastTrade = results["LastTradePriceOnly"];
+      symbol = results["Symbol"];
     }
 
     t.equals(symbol, `SPY`, `queries SPY ticker as default`);
@@ -26,13 +27,14 @@ test('default quote information with volume', function(t){
 
   xhr.get(`${host}/quotes?volume=true`, function(err, res){
     var lastTrade, symbol, resTime;
+    var results = res.body["results"];
 
     t.notOk(err, 'No error was received');
 
-    if (res.body){
-      lastTrade = res.body["LastTradePriceOnly"];
-      symbol = res.body["Symbol"];
-      volume = res.body["Volume"]
+    if (results){
+      lastTrade = results["LastTradePriceOnly"];
+      symbol = results["Symbol"];
+      volume = results["Volume"]
     }
 
     t.equals(symbol, `SPY`, `queries SPY ticker as default`);
@@ -46,10 +48,11 @@ test('quote information with all data', function(t){
 
   xhr.get(`${host}/quotes?symbols=AAPL&alldata=true`, function(err, res){
     var lastTrade, symbol, resTime;
+    var results = res.body["results"];
 
     t.notOk(err, 'No error was received');
-    t.equals(res.body["Symbol"], `AAPL`, `queries requested ticker`);
-    t.equals(Object.keys(res.body).length, 84, `retrieves all 84 metrics`);
+    t.equals(results["Symbol"], `AAPL`, `queries requested ticker`);
+    t.equals(Object.keys(results).length, 83, `retrieves all 84 metrics`);
 
   })
 });
@@ -61,14 +64,15 @@ test('custom metric information', function(t){
 
   xhr.get(`${host}/quotes?${queryString}`, function(err, res){
     var lastTrade, symbol, resTime, volume, percentChange;
+    var results = res.body["results"];
 
     t.notOk(err, 'No error was received');
 
-    if (res.body){
-      lastTrade = res.body["LastTradePriceOnly"];
-      symbol = res.body["Symbol"];
-      volume = res.body["Volume"];
-      percentChange = res.body["PercentChange"];
+    if (results){
+      lastTrade = results["LastTradePriceOnly"];
+      symbol = results["Symbol"];
+      volume = results["Volume"];
+      percentChange = results["PercentChange"];
     }
 
     t.equals(symbol, `AAPL`, `queries AAPL ticker when requested`);
@@ -78,17 +82,19 @@ test('custom metric information', function(t){
   })
 });
 
-test ('multiple quote information', function(t){
+test('multiple quote information', function(t){
   t.plan(14);
 
   var queryString = "symbols=SPY%2CAAPL%2CMSFT&metrics=LastTradePriceOnly%2CPercentChange%2CVolume";
 
   xhr.get(`${host}/quotes?${queryString}`, function(err, res){
+    var results = res.body["results"];
+
     t.notOk(err, 'No error was received');
 
-    t.equal(res.body.length, 3, 'The requested number of symbols were returned');
+    t.equal(results.length, 3, 'The requested number of symbols were returned');
 
-    res.body.forEach(function(data){
+    results.forEach(function(data){
       var lastTrade = data["LastTradePriceOnly"];
       var symbol = data["Symbol"];
       var volume = data["Volume"];
@@ -99,5 +105,15 @@ test ('multiple quote information', function(t){
       t.ok(volume, `retrieves information for volume for ${symbol}`);
       t.ok(percentChange, `retrieves information for percent price change for ${symbol}`);
     });
-  })
+  });
+});
+
+test('invalid ticker response', function(t){
+  t.plan(1);
+
+  var queryString = "symbols=GOOOG";
+
+  xhr.get(`${host}/quotes?${queryString}`, function(err, res){
+    t.equal(res.statusCode, 400, `returns 400 status code for an invalid ticker`);
+  });
 })
