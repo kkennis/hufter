@@ -15,43 +15,21 @@ var getStockData = function (symbols, metrics){
   return new Promise(function(resolve, reject){
     needle.get(fullQuery, function(err, res){
       if (err) reject(err);
-
+      var response = {};
       var stockData = res.body["query"]["results"]["quote"];
-      // console.log(stockData);
-
-      var elimSymbol = dataSet => _.pipe(Object.keys, _.reject(_.equals('Symbol')), _.pick(_.__, dataSet))
-      var getVals = obj => _.map((key) => obj[key], Object.keys(obj));
-      var checkAllNull = _.all(_.equals(null));
-      var noResult = dataSet => _.pipe(elimSymbol(dataSet), getVals, checkAllNull)(dataSet);
+      response.ResolutionTime = res.body["query"]["diagnostics"]["user-time"];
 
       if (_.type(stockData) === "Array"){
-        var invalidSymbols = [];
-
-        stockData.forEach(function(stock){
-          if (noResult(stock)) {
-            invalidSymbols.push(stock["Symbol"]);
-          }
-        });
-        if (!_.isEmpty(invalidSymbols)){
-          response["results"] = _.reject((stock) => _.contains(stock["Symbol"], invalidSymbols), stockData);
-          response.error = `No quote information found for ticker ${invalidSymbols.join(", ")}`;
-          if (_.isEmpty(response["results"])) delete response["results"];
-        } else {
-          response["results"] = stockData;
-        }
-        response.ResolutionTime = res.body["query"]["diagnostics"]["user-time"];
+        response = _.merge(response, checkInvalid(stockData));
         resolve(response);
       } else {
         if (noResult(stockData)){
           reject(`No quote information found for ticker ${symbols}`)
         } else {
-          response["results"] = stockData;
+          response = _.merge(response, { "results": stockData });
           resolve(response);
         }
       }
-
-
-
     });
   });
 };
@@ -76,7 +54,31 @@ function buildQuery(symbols, metrics){
   return rootPath + encodeURIComponent(query) + extraParams;
 }
 
+function noResult(stockResult){
+  var elimSymbol = dataSet => _.pipe(Object.keys, _.reject(_.equals('Symbol')), _.pick(_.__, dataSet))
+  var getVals = obj => _.map((key) => obj[key], Object.keys(obj));
+  var checkAllNull = _.all(_.equals(null));
+  return _.pipe(elimSymbol(stockResult), getVals, checkAllNull)(stockResult);
+}
 
+function checkInvalid(stockData){
+  var invalidSymbols = [];
+  var parsedResult = {};
+
+  stockData.forEach(function(stock){
+    if (noResult(stock)) {
+      invalidSymbols.push(stock["Symbol"]);
+    }
+  });
+  if (!_.isEmpty(invalidSymbols)){
+    parsedResult["results"] = _.reject((stock) => _.contains(stock["Symbol"], invalidSymbols), stockData);
+    parsedResult.tickerError = `No quote information found for ticker ${invalidSymbols.join(", ")}`;
+    if (_.isEmpty(parsedResult["results"])) delete parsedResult["results"];
+  } else {
+    parsedResult["results"] = stockData;
+  }
+  return parsedResult;
+}
 
 getStockDatawithOptions = _.curry(getStockData);
 
