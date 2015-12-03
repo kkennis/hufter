@@ -1,6 +1,5 @@
 var test = require('tape');
 var xhr = require('needle');
-var co = require('co');
 var host = `http://localhost:3000`;
 
 test('default quote information', function(t){
@@ -17,7 +16,7 @@ test('default quote information', function(t){
       symbol = results["Symbol"];
     }
 
-    t.equals(symbol, `SPY`, `queries SPY ticker as default`);
+    t.equal(symbol, `SPY`, `queries SPY ticker as default`);
     t.ok(lastTrade, `retrieves information for last trade price`);
   });
 });
@@ -37,7 +36,7 @@ test('default quote information with volume', function(t){
       volume = results["Volume"]
     }
 
-    t.equals(symbol, `SPY`, `queries SPY ticker as default`);
+    t.equal(symbol, `SPY`, `queries SPY ticker as default`);
     t.ok(lastTrade, `retrieves information for last trade price`);
     t.ok(volume, `retrieves information for volume`);
   });
@@ -51,8 +50,8 @@ test('quote information with all data', function(t){
     var results = res.body["results"];
 
     t.notOk(err, 'No error was received');
-    t.equals(results["Symbol"], `AAPL`, `queries requested ticker`);
-    t.equals(Object.keys(results).length, 83, `retrieves all 84 metrics`);
+    t.equal(results["Symbol"], `AAPL`, `queries requested ticker`);
+    t.equal(Object.keys(results).length, 83, `retrieves all 84 metrics`);
 
   })
 });
@@ -75,7 +74,7 @@ test('custom metric information', function(t){
       percentChange = results["PercentChange"];
     }
 
-    t.equals(symbol, `AAPL`, `queries AAPL ticker when requested`);
+    t.equal(symbol, `AAPL`, `queries AAPL ticker when requested`);
     t.ok(lastTrade, `retrieves information for last trade price`);
     t.ok(volume, `retrieves information for volume`);
     t.ok(percentChange, `retrieves information for percent price change`);

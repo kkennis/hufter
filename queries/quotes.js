@@ -10,8 +10,6 @@ var getStockData = function (symbols, metrics){
 
   var fullQuery = buildQuery(symbols, metrics);
 
-  // Error checking - all fields except symbol are null
-
   return new Promise(function(resolve, reject){
     needle.get(fullQuery, function(err, res){
       if (err) reject(err);

@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
   if (req.query.symbols){
     symbols = parseQuery(req.query.symbols)
   }
-
+  // TODO: Refactor this promise chain, since then/catch is always the same
   if (req.query.volume === "true"){
     YFquotes.getLastTradeWithVolume(symbols)
       .then((response) => res.json(response))

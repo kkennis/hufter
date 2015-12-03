@@ -3,9 +3,6 @@ var moment = require('moment');
 require('moment-timezone');
 require('moment-range')
 
-
-
-// TODO: Fuck moment, use native JS dates. Probably separate module
 setInterval(function(){
 
   var currentTime = moment().tz('America/New_York');
