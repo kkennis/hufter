@@ -160,7 +160,6 @@ test('all invalid metrics', function(t){
 
   xhr.get(`${host}/quotes?${queryString}`, function(err, res){
     t.notOk(err, 'No error was received');
-    console.log(res.body)
     t.equal(res.statusCode, 400, `returns 400 status code for all invalid metrics`);
   });
 });

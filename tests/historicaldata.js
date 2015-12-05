@@ -106,3 +106,76 @@ test('custom metric information', function(t){
 
   });
 });
+
+test('invalid ticker response', function(t){
+  t.plan(2);
+
+  var queryString = "symbols=GOOOG";
+
+  xhr.get(`${host}/historicaldata?${queryString}`, function(err, res){
+    t.notOk(err, 'No error was received');
+    t.equal(res.statusCode, 400, `returns 400 status code for an invalid ticker`);
+  });
+});
+
+test('some invalid and some valid tickers', function(t){
+  t.plan(3);
+
+  var queryString = "symbols=SPY%2CAAAPL%2CMMSFT%2CTWTR&metrics=LastTradePriceOnly%2CPercentChange%2CVolume";
+
+  xhr.get(`${host}/historicaldata?${queryString}`, function(err, res){
+    t.notOk(err, 'No error was received');
+    var results = res.body["results"];
+
+    t.equal(Object.keys(results).length, 2, 'returns the right number of valid symbols');
+    t.ok(res.body.tickerError, 'returns the right type of error');
+  });
+});
+
+test('some invalid metrics', function(t){
+  t.plan(3);
+
+  var queryString = "symbols=AAPL%2CMSFT&metrics=Open%2CClose%2CTop";
+
+  xhr.get(`${host}/historicaldata?${queryString}`, function(err, res){
+    t.notOk(err, 'No error was received');
+    var results = res.body["results"];
+
+    t.equal(Object.keys(results).length, 2, 'returns the right number of results');
+    t.ok(res.body.metricsError, 'returns the right type of error')
+
+  });
+});
+
+test('all invalid metrics', function(t){
+  t.plan(2);
+
+  var queryString = "symbols=SPY%2CAAPL%2CMSFT%2CTWTR&metrics=Top%2CBottom";
+
+  xhr.get(`${host}/quotes?${queryString}`, function(err, res){
+    t.notOk(err, 'No error was received');
+    t.equal(res.statusCode, 400, `returns 400 status code for all invalid metrics`);
+  });
+});
+
+test('invalid start date', function(t){
+  t.plan(2);
+
+  var queryString = "symbols=SPY%2CAAPL%2CMSFT%2CTWTR&metrics=Top%2CBottom&startDate=sometime";
+
+  xhr.get(`${host}/quotes?${queryString}`, function(err, res){
+    t.notOk(err, 'No error was received');
+    t.equal(res.statusCode, 400, `returns 400 status code for invalid start date`);
+  });
+});
+
+test('invalid end date', function(t){
+  t.plan(2);
+
+  var queryString = "symbols=SPY%2CAAPL%2CMSFT%2CTWTR&metrics=Top%2CBottom&endDate=sometime";
+
+  xhr.get(`${host}/quotes?${queryString}`, function(err, res){
+    t.notOk(err, 'No error was received');
+    t.equal(res.statusCode, 400, `returns 400 status code for invalid end date`);
+  });
+});

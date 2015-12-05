@@ -1,5 +1,4 @@
 var _ = require('ramda');
-var needle = require('needle');
 var xhrPromise = require('../utils/needle-promisify');
 
 var getStockData = function (symbols, metrics){
@@ -54,12 +53,12 @@ function checkInvalidTickers(stockData){
   var getInvalidSymbols = _.pipe(_.prop('results'), _.filter(noResult), _.pluck('Symbol'));
   var invalidSymbols = getInvalidSymbols(stockData);
 
-  if (!_.isEmpty(invalidSymbols)){
+  if (_.isEmpty(invalidSymbols)){
+    parsedResult["results"] = stockData["results"];
+  } else {
     var isInvalid = (stock) => _.contains(stock["Symbol"], invalidSymbols);
     parsedResult["results"] = _.reject(isInvalid, stockData["results"]);
     parsedResult.tickerError = `No quote information found for ticker(s) ${invalidSymbols.join(", ")}`;
-  } else {
-    parsedResult["results"] = stockData["results"];
   }
   return parsedResult;
 }
