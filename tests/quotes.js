@@ -1,6 +1,8 @@
 var test = require('tape');
 var xhr = require('needle');
 var host = `http://localhost:3000`;
+var quotes = require('../routes/quotes.js');
+
 
 test('default quote information', function(t){
   t.plan(3);
@@ -8,7 +10,7 @@ test('default quote information', function(t){
   xhr.get(`${host}/quotes`, function(err, res){
     t.notOk(err, 'No error was received');
     var lastTrade, symbol, resTime;
-    var results = res.body["results"];
+    var results = res.body["results"][0];
 
 
     if (results){
@@ -26,7 +28,7 @@ test('default quote information with volume', function(t){
 
   xhr.get(`${host}/quotes?volume=true`, function(err, res){
     var lastTrade, symbol, resTime;
-    var results = res.body["results"];
+    var results = res.body["results"][0];
 
     t.notOk(err, 'No error was received');
 
@@ -47,7 +49,7 @@ test('quote information with all data', function(t){
 
   xhr.get(`${host}/quotes?symbols=AAPL&alldata=true`, function(err, res){
     var lastTrade, symbol, resTime;
-    var results = res.body["results"];
+    var results = res.body["results"][0];
 
     t.notOk(err, 'No error was received');
     t.equal(results["Symbol"], `AAPL`, `queries requested ticker`);
@@ -63,7 +65,7 @@ test('custom metric information', function(t){
 
   xhr.get(`${host}/quotes?${queryString}`, function(err, res){
     var lastTrade, symbol, resTime, volume, percentChange;
-    var results = res.body["results"];
+    var results = res.body["results"][0];
 
     t.notOk(err, 'No error was received');
 

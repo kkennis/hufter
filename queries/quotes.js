@@ -1,54 +1,49 @@
 var _ = require('ramda');
 var needle = require('needle');
-
+var Either = require('ramda-fantasy').Either;
+var Identity = require('ramda-fantasy').Identity;
 
 var getStockData = function (symbols, metrics){
   var response = {};
+  var fullQuery = buildQuery(parseSymbols(symbols), parseMetrics(metrics));
 
-  symbols = parseSymbols(symbols);
-  metrics = parseMetrics(metrics);
-
-  var fullQuery = buildQuery(symbols, metrics);
 
   return new Promise(function(resolve, reject){
     needle.get(fullQuery, function(err, res){
-      if (err) reject(err);
-      var response = {};
-      var invalidMetrics;
-      var stockData = res.body["query"]["results"]["quote"];
-      response.ResolutionTime = res.body["query"]["diagnostics"]["user-time"];
+      if (err) { reject(err) };
 
-      if (_.type(stockData) === "Array"){
-        response = _.merge(response, checkInvalidTickers(stockData));
-        if (!response["results"]){
-          reject(response.tickerError);
-        } else {
-          invalidMetrics = checkInvalidMetrics(metrics, response["results"][0]);
-          if (invalidMetrics) response.metricsError = `No such metrics ${invalidMetrics.join(", ")}. Please refer to documentation for possible metrics.`
-          resolve(response);
-        }
-      } else {
-        if (noResult(stockData)) reject(`No quote information found for ticker ${symbols}`);
-        response = _.merge(response, { "results": stockData });
-        invalidMetrics = checkInvalidMetrics(metrics, response["results"]);
-        if (invalidMetrics) response.metricsError = `No such metrics ${invalidMetrics.join(", ")}. Please refer to documentation for possible metrics.`
-        resolve(response);
+      var response = {
+        results: res.body["query"]["results"]["quote"],
+        ResolutionTime: res.body["query"]["diagnostics"]["user-time"]
       }
+
+      if (_.type(response["results"]) !== "Array") { response["results"] = [response["results"]] }
+
+      response = _.mergeAll([
+        response,
+        checkInvalidTickers(response),
+        checkInvalidMetrics(metrics, response)
+      ]);
+
+      if (_.isEmpty(response["results"])){ reject(response.tickerError) }
+      else { resolve(response) }
     });
   });
 };
 
+function checkResults(data){
+  return data["results"] ? Either.Right(data) : Either.Left(data);
+}
+
 function parseSymbols(symbols){
-  if (!symbols) { symbols = 'SPY' }
-  else if (_.type(symbols) === "Array") { symbols = symbols.join('","') }
-  return symbols;
+  if (!symbols) { return 'SPY'; }
+  else if (_.type(symbols) === "Array") { return symbols.join('","'); }
 }
 
 function parseMetrics(metrics){
-  if (!metrics) { metrics = '*' }
-  else if (_.type(metrics) === "String") { metrics = metrics + ", Symbol"}
-  else if (_.type(metrics) === "Array") { metrics = metrics.concat("Symbol").join(',') }
-  return metrics;
+  if (!metrics) { return '*'; }
+  else if (_.type(metrics) === "String") { return metrics + ",Symbol"; }
+  else if (_.type(metrics) === "Array") { return metrics.concat("Symbol").join(','); }
 }
 
 function buildQuery(symbols, metrics){
@@ -66,26 +61,28 @@ function noResult(stockResult){
 }
 
 function checkInvalidTickers(stockData){
-  var invalidSymbols = [];
   var parsedResult = {};
+  var getInvalidSymbols = _.pipe(_.prop('results'), _.filter(noResult), _.pluck('Symbol'));
+  var invalidSymbols = getInvalidSymbols(stockData);
 
-  stockData.forEach(function(stock){
-    if (noResult(stock)) { invalidSymbols.push(stock["Symbol"]) }
-  });
   if (!_.isEmpty(invalidSymbols)){
-    parsedResult["results"] = _.reject((stock) => _.contains(stock["Symbol"], invalidSymbols), stockData);
+    parsedResult["results"] = _.reject((stock) => _.contains(stock["Symbol"], invalidSymbols), stockData["results"]);
     parsedResult.tickerError = `No quote information found for ticker(s) ${invalidSymbols.join(", ")}`;
-    if (_.isEmpty(parsedResult["results"])) delete parsedResult["results"];
   } else {
-    parsedResult["results"] = stockData;
+    parsedResult["results"] = stockData["results"];
   }
   return parsedResult;
 }
 
-function checkInvalidMetrics(metrics, stock){
-  var validMetrics = Object.keys(stock);
-  var invalidMetrics = _.reject(_.contains(_.__, validMetrics), metrics.split(","));
-  return invalidMetrics;
+function checkInvalidMetrics(metrics, stockData){
+  if (!metrics) return {};
+  if (_.type(metrics) !== "Array") { metrics = [metrics] }
+
+  var validMetrics = Object.keys(stockData["results"][0]);
+  var isValid = _.contains(_.__, validMetrics);
+  var invalidMetrics = _.reject(isValid, metrics);
+  var metricsError = `No such metrics ${invalidMetrics.join(", ")}. Please refer to documentation for possible metrics.`
+  return _.isEmpty(invalidMetrics) ? {} : { metricsError: metricsError };
 }
 
 getStockDatawithOptions = _.curry(getStockData);

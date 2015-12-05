@@ -22,9 +22,14 @@
     "morgan": "^1.6.1",
     "needle": "^0.11.0",
     "ramda": "^0.18.0",
+    "ramda-fantasy": "^0.4.1",
     "serve-favicon": "~2.3.0",
     "tape": "^4.2.2",
     "uniq": "^1.0.1",
     "xmlhttprequest": "^1.8.0"
+  },
+  "devDependencies": {
+    "coverify": "^1.4.1",
+    "covert": "^1.1.0"
   }
 }

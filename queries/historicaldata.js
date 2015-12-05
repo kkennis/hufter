@@ -23,6 +23,7 @@ function getStockData(symbols, metrics, startDate, endDate){
   var fullQuery = rootPath + encodeURIComponent(query) + extraParams;
 
 
+  // No error checking yet...at all
   return new Promise(function(resolve, reject){
     needle.get(fullQuery, function(err, res){
       if (err) reject(err);
@@ -36,7 +37,7 @@ function getStockData(symbols, metrics, startDate, endDate){
       }
 
     })
-  })
+  });
 }
 
 getStockDatawithOptions = _.curry(getStockData);

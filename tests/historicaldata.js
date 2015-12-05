@@ -2,7 +2,11 @@ var test = require('tape');
 var xhr = require('needle');
 var _ = require('ramda');
 var moment = require('moment');
+require('moment-timezone');
+require('moment-range')
 var host = `http://localhost:3000`;
+var historicaldata = require('../routes/historicaldata.js');
+
 
 var getLastDate = _.pipe(_.head, _.prop("Date"));
 var getFirstDate = _.pipe(_.last, _.prop("Date"));
@@ -17,6 +21,7 @@ test('default historical information', function(t){
 
     t.notOk(_.isEmpty(results), `returns results for query`);
     t.ok(results["SPY"], `returns SPY information as default`);
+
 
     var oneDayAgo = moment().subtract(1, 'days');
     var oneYearAgo = moment().subtract(1, 'years');

@@ -3,9 +3,7 @@ var router = express.Router();
 var YFhistoricaldata = require('../queries/historicaldata.js');
 
 router.get('/', function(req, res, next) {
-  var response;
-  var symbols;
-  var metrics;
+  var response, symbols, metrics;
 
   if (req.query.symbols) symbols = decodeURIComponent(req.query.symbols).split(",");
   else symbols = null;
