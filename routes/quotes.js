@@ -4,30 +4,23 @@ var YFquotes = require('../queries/quotes.js');
 var _ = require('ramda')
 
 router.get('/', function(req, res, next) {
-  var response, symbols;
+  var symbols, request;
   var parseQuery = _.pipe(decodeURIComponent, _.split(","));
-  if (req.query.symbols){
-    symbols = parseQuery(req.query.symbols)
-  }
-  // TODO: Refactor this promise chain, since then/catch is always the same
+  if (req.query.symbols) { symbols = parseQuery(req.query.symbols) }
+
   if (req.query.volume === "true"){
-    YFquotes.getLastTradeWithVolume(symbols)
-      .then((response) => res.json(response))
-      .catch((err) => res.status(400).json({ "error": err }));
+    request = YFquotes.getLastTradeWithVolume(symbols)
   } else if (req.query.alldata === "true"){
-    YFquotes.getAllData(symbols)
-      .then((response) => res.json(response))
-      .catch((err) => res.status(400).json({ "error": err }));
+    request = YFquotes.getAllData(symbols)
   } else if (req.query.metrics){
-    YFquotes.getStockData(symbols,
-      decodeURIComponent(req.query.metrics).split(","))
-      .then((response) => res.json(response))
-      .catch((err) => res.status(400).json({ "error": err }));
+    request = YFquotes.getStockData(symbols, parseQuery(req.query.metrics))
   } else {
-    YFquotes.getLastTrade(symbols)
-      .then((response) => res.json(response))
-      .catch((err) => res.status(400).json({ "error": err }));
+    request = YFquotes.getLastTrade(symbols)
   }
+
+  request
+    .then((response) => res.json(response))
+    .catch((err) => res.status(400).json({ "error": err }));
 });
 
 module.exports = router;

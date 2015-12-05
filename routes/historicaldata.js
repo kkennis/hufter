@@ -4,12 +4,12 @@ var YFhistoricaldata = require('../queries/historicaldata.js');
 
 router.get('/', function(req, res, next) {
   var response, symbols, metrics;
+  var parseQuery = _.pipe(decodeURIComponent, _.split(","));
 
-  if (req.query.symbols) symbols = decodeURIComponent(req.query.symbols).split(",");
-  else symbols = null;
+  if (req.query.symbols) { symbols = parseQuery(req.query.symbols) };
 
   if (req.query.metrics) {
-    metrics = decodeURIComponent(req.query.metrics).split(",");
+    metrics = parseQuery(req.query.metrics);
     YFhistoricaldata.getHistoricalData(symbols, metrics, req.query.startDate, req.query.endDate)
       .then((response) => res.json(response));
   } else {

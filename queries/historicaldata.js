@@ -15,7 +15,6 @@ function getStockData(symbols, metrics, startDate, endDate){
   if (!startDate) { startDate = moment().subtract(1, 'years').format("YYYY-MM-DD") }
   if (!endDate) { endDate = moment().format("YYYY-MM-DD") }
 
-  var stockData = {};
   var rootPath = 'https://query.yahooapis.com/v1/public/yql?q=';
   var query = 'select ' + metrics + ' from yahoo.finance.historicaldata where symbol in (' + symbols + ')' +
               ' and startDate = "' + startDate + '" and endDate="' + endDate + '"';
@@ -38,6 +37,18 @@ function getStockData(symbols, metrics, startDate, endDate){
 
     })
   });
+}
+
+function parseSymbols(symbols) {
+
+}
+
+function parseMetrics(metrcs) {
+
+}
+
+function buildQuery(symbols, metrics, startDate, endDate) {
+
 }
 
 getStockDatawithOptions = _.curry(getStockData);

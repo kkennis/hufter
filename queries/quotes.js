@@ -1,23 +1,16 @@
 var _ = require('ramda');
 var needle = require('needle');
-var Either = require('ramda-fantasy').Either;
-var Identity = require('ramda-fantasy').Identity;
+var xhrPromise = require('../utils/needle-promisify');
 
 var getStockData = function (symbols, metrics){
-  var response = {};
-  var fullQuery = buildQuery(parseSymbols(symbols), parseMetrics(metrics));
+  var url = buildQuery(parseSymbols(symbols), parseMetrics(metrics));
 
-
-  return new Promise(function(resolve, reject){
-    needle.get(fullQuery, function(err, res){
-      if (err) { reject(err) };
-
+  return xhrPromise.get(url)
+    .then(function(res){
       var response = {
-        results: res.body["query"]["results"]["quote"],
+        results: [].concat(res.body["query"]["results"]["quote"]),
         ResolutionTime: res.body["query"]["diagnostics"]["user-time"]
       }
-
-      if (_.type(response["results"]) !== "Array") { response["results"] = [response["results"]] }
 
       response = _.mergeAll([
         response,
@@ -25,15 +18,11 @@ var getStockData = function (symbols, metrics){
         checkInvalidMetrics(metrics, response)
       ]);
 
-      if (_.isEmpty(response["results"])){ reject(response.tickerError) }
-      else { resolve(response) }
+      if (_.isEmpty(response["results"])) { throw new Error(response.tickerError); }
+      else { return response; }
     });
-  });
-};
-
-function checkResults(data){
-  return data["results"] ? Either.Right(data) : Either.Left(data);
 }
+
 
 function parseSymbols(symbols){
   if (!symbols) { return 'SPY'; }
@@ -48,7 +37,7 @@ function parseMetrics(metrics){
 
 function buildQuery(symbols, metrics){
   var rootPath = 'https://query.yahooapis.com/v1/public/yql?q=';
-  var query = 'select ' + metrics + ' from yahoo.finance.quotes where symbol in ("' + symbols + '")';
+  var query = `select ${metrics} from yahoo.finance.quotes where symbol in ("${symbols}")`;
   var extraParams = '&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';
   return rootPath + encodeURIComponent(query) + extraParams;
 }
@@ -66,7 +55,8 @@ function checkInvalidTickers(stockData){
   var invalidSymbols = getInvalidSymbols(stockData);
 
   if (!_.isEmpty(invalidSymbols)){
-    parsedResult["results"] = _.reject((stock) => _.contains(stock["Symbol"], invalidSymbols), stockData["results"]);
+    var isInvalid = (stock) => _.contains(stock["Symbol"], invalidSymbols);
+    parsedResult["results"] = _.reject(isInvalid, stockData["results"]);
     parsedResult.tickerError = `No quote information found for ticker(s) ${invalidSymbols.join(", ")}`;
   } else {
     parsedResult["results"] = stockData["results"];

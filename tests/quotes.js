@@ -10,6 +10,7 @@ test('default quote information', function(t){
   xhr.get(`${host}/quotes`, function(err, res){
     t.notOk(err, 'No error was received');
     var lastTrade, symbol, resTime;
+    console.log(res.body)
     var results = res.body["results"][0];
 
 
@@ -65,6 +66,7 @@ test('custom metric information', function(t){
 
   xhr.get(`${host}/quotes?${queryString}`, function(err, res){
     var lastTrade, symbol, resTime, volume, percentChange;
+    console.log(res.body)
     var results = res.body["results"][0];
 
     t.notOk(err, 'No error was received');
