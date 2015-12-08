@@ -9,8 +9,6 @@ var host = process.env["DB_HOST"]
 var getTickers = require('../db/query-mongo.js');
 var saveToMongo = require('../db/save-mongo.js');
 var Ticker = mongoose.model('Ticker');
-var tickers;
-
 
 router.use('*', function(req, res, next){
   if (db.readyState === 0) {
@@ -18,8 +16,7 @@ router.use('*', function(req, res, next){
   } else {
     next();
   }
-
-})
+});
 
 router.get('/save', function(req, res, next) {
   console.log("Saving...");
