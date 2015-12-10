@@ -5,6 +5,7 @@ var backtest = require('../backtester/backtester.js');
 var crypter = require('../backtester/encrypt.js')
 var algo = require('../testalgo.js');
 var compiler = require('../native/compile.js')
+var _ = require('ramda')
 
 
 
@@ -28,15 +29,16 @@ router.get('/', function(req, res, next){
     else { reject(Error("API Error")); }
   })
   .then(function(stockData){
-    var testingAlgo = (new Function('return ' + data.algo))();
 
-    // if (req.query.lang !== "cpp"){
-      // return backtest(testingAlgo, stockData);
-    // } else {
-      return compiler(testingAlgo, stockData);
-    // }
+    if (req.query.lang === "cpp"){
+      var parseResults = _.pipe(_.trim, JSON.parse);
+      return compiler(data.algo, stockData).then(parseResults);
+    } else {
+      var jsAlgo = (new Function('return ' + data.algo))();
+      return backtest(jsAlgo, stockData);
+    }
   })
-  .then(function(results){ res.json(results.trim()); },
+  .then(function(results){ res.json(results); },
         function(error){ res.end(error); });
 });
 

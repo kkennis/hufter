@@ -16,6 +16,7 @@ function compileAlgo(algo, data) {
         body += chunk;
       });
       run.on('close', function(exitCode){
+        // Body is string - maybe objectify!
         resolve(body);
       })
       run.on('error', function(err){
