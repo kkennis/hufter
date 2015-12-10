@@ -4,6 +4,8 @@ var _ = require('ramda');
 
 
 function runBacktest(algo, data){
+  console.log("Running test...")
+
   var results = {};
   var numPeriods = null;
   var sum = _.reduce(_.add, 0);
@@ -48,6 +50,9 @@ function runBacktest(algo, data){
     results[stock]["SellsPerPeriod"] = sellSignals.length / numPeriods;
 
     results[stock]["TotalTrades"] = buySignals.length + sellSignals.length;
+
+    console.log(results);
+
   });
 
   var overallStats = {};
@@ -81,7 +86,7 @@ function runBacktest(algo, data){
 
   results["TotalStats"] = overallStats;
 
-
+  console.log(results);
   return results;
 
 

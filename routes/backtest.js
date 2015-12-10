@@ -4,6 +4,7 @@ var YFhistoricaldata = require('../queries/historicaldata.js');
 var backtest = require('../backtester/backtester.js');
 var crypter = require('../backtester/encrypt.js')
 var algo = require('../testalgo.js');
+var compiler = require('../native/compile.js')
 
 
 
@@ -29,9 +30,13 @@ router.get('/', function(req, res, next){
   .then(function(stockData){
     var testingAlgo = (new Function('return ' + data.algo))();
 
-    return backtest(testingAlgo, stockData);
+    // if (req.query.lang !== "cpp"){
+      // return backtest(testingAlgo, stockData);
+    // } else {
+      return compiler(testingAlgo, stockData);
+    // }
   })
-  .then(function(results){ res.json(results); },
+  .then(function(results){ res.json(results.trim()); },
         function(error){ res.end(error); });
 });
 
