@@ -4,16 +4,15 @@ var _ = require('ramda');
 
 
 function runBacktest(algo, data){
-  console.log("Running test...")
 
   var results = {};
   var numPeriods = null;
   var sum = _.reduce(_.add, 0);
 
-  // Does this even need to be a promise?
-  var stocks = _.groupBy((stock) => stock['Symbol'], data);
+  var stocks = data["results"];
 
   Object.keys(stocks).forEach(function(stock){
+
     results[stock] = {};
 
     var stockData = stocks[stock];
@@ -51,7 +50,6 @@ function runBacktest(algo, data){
 
     results[stock]["TotalTrades"] = buySignals.length + sellSignals.length;
 
-    console.log(results);
 
   });
 
