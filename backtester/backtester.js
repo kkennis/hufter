@@ -84,7 +84,6 @@ function runBacktest(algo, data){
 
   results["TotalStats"] = overallStats;
 
-  console.log(results);
   return results;
 
 

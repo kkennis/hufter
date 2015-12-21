@@ -26,7 +26,7 @@ router.get('/', function(req, res, next){
     var stockData = YFhistoricaldata.getAllData(symbols, data.startDate, data.endDate);
 
     if (stockData) { resolve(stockData); }
-    else { reject(Error("API Error")); }
+    else { reject(new Error("API Error")); }
   })
   .then(function(stockData){
 
@@ -38,8 +38,8 @@ router.get('/', function(req, res, next){
       return backtest(jsAlgo, stockData);
     }
   })
-  .then(function(results){ res.json(results); },
-        function(error){ res.end(error); });
+  .then((results) => res.json(results))
+  .catch((err) => res.status(400).json({ error: err }));
 });
 
 module.exports = router;
