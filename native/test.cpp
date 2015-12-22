@@ -24,42 +24,23 @@ struct quote {
 };
 
 int main(int argc, char* argv[]) {
-  Json::Value stockData;
-  std::string errs;
-  Json::CharReaderBuilder rbuilder;
-  rbuilder["collectComments"] = false;
-  bool ok = Json::parseFromStream(rbuilder, cin, &stockData, &errs);
+  string data = "";
+  cin >> data;
 
-  if (!ok) {
-    cout << "Failed to parse JSON" << endl;
-    return 1;
+  Json::Value array;
+  array.append("hello");
+  array.append("world");
+
+  Json::Value parsedData;
+  Json::Reader reader;
+  Json::StyledWriter writer;
+  bool parsingSuccessful = reader.parse(data, parsedData);
+  if (parsingSuccessful)
+  {
+    string output = writer.write(parsedData);
+    cout << output << endl;
   }
 
-  Json::StreamWriterBuilder wbuilder;
-  wbuilder["indentation"] = "\t";
-  std::string document = Json::writeString(wbuilder, stockData);
-
-
-
-
-  ofstream fout("results.txt");
-  // cout << "Running";
-  fout<<document<<endl;
-  // fout<<stockData.asString()<< endl;
-  fout.close();
-
-  cout << document << endl;
-
-  // Dynamically load compiled library,
-  // pass data as argument to algo,
-  // get return value and c back out
-
-  // Contract: Return value must be two element array of map<integer, double>
-
-  //JSONify it here
-  // cout << data << endl;
-  // cout << stockData << endl;
-  // cout << stockData.asString() << endl;
 
   return 0;
 }

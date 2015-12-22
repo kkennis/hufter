@@ -17,7 +17,6 @@ function compileAlgo(algo, data) {
         // fs.unlink(fileName);
         // fs.unlink(compiledFile);
         console.log("Connection closed");
-        console.log(body);
         resolve(body);
       })
       algoBin.on('error', (err) => reject(err))
