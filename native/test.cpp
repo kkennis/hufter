@@ -59,17 +59,38 @@ int main(int argc, char* argv[]) {
       }
       vector<quote> signals[2] = algo(stockData);
 
-      // Now we need to reconstruct output
-      // output[symbol]["buy"] = signals[0];
-      // output[symbol]["sell"] = signals[1];
+      Json::Value symbolResults;
+      Json::Value signals;
+      symbolResults["signals"] = signals;
+      Json::Value buys;
+      Json::Value sells;
+      symbolResults["signals"]["buy"] = buys;
+      symbolResults["signals"]["sell"] = sells;
+
+      output[symbol] = symbolResults;
+
+      for (vector<quote>::iterator it = signals[0].begin(); it != signals[0].end(); ++it) {
+        Json::Value buySignal;
+        buySignal.append((*it).timestamp);
+        buySignal.append((*it).price);
+        output[symbol]["signals"]["buy"].append(buySignal);
+      }
+
+      for (vector<quote>::iterator it = signals[1].begin(); it != signals[1].end(); ++it) {
+        Json::Value sellSignals;
+        sellSignals.append((*it).timestamp);
+        sellSignals.append((*it).price);
+        output[symbol]["signals"]["sell"].append(sellSignals);
+      }
+
 
       fout << "***************************************" << endl;
     }
 
     fout << endl;
 
-    string output = writer.write(results);
-    cout << output << endl;
+    string finalOutput = writer.write(output);
+    cout << finalOutput << endl;
 
     fout.close();
   }
