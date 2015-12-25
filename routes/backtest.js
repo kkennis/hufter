@@ -4,7 +4,8 @@ var YFhistoricaldata = require('../queries/historicaldata.js');
 var backtest = require('../backtester/backtester.js');
 var crypter = require('../backtester/encrypt.js')
 var algo = require('../testalgo.js');
-var compiler = require('../native/compile.js')
+var compiler = require('../native/compile.js');
+var calculateStats = require('../backtester/stats.js');
 var _ = require('ramda')
 
 
@@ -31,13 +32,13 @@ router.get('/', function(req, res, next){
   .then(function(stockData){
 
     if (req.query.lang === "cpp"){
-      var parseResults = _.pipe(_.trim, JSON.parse);
-      return compiler(data.algo, stockData).then(parseResults);
+      return compiler(data.algo, stockData);
     } else {
       var jsAlgo = (new Function('return ' + data.algo))();
       return backtest(jsAlgo, stockData);
     }
   })
+  .then((results) => calculateStats(results, stockData))
   .then((results) => res.json(results))
   .catch((err) => res.status(400).json({ error: err }));
 });
