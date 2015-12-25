@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 using namespace std;
-// Stack vs heap...no idea
 
 struct Quote {
   string timestamp;
@@ -29,25 +28,17 @@ vector<vector<Quote>> runAlgo(vector<Quote> stockData) {
       buy.push_back(buySignal);
     }
 
-    for (vector<Quote>::iterator it2 = buy.begin(); it3 != buy.end(); ++it) {
+    for (vector<Quote>::iterator it2 = buy.begin(); it2 != buy.end(); ++it2) {
       double buyPrice = (*it2).price;
 
       if (buyPrice < price) {
         Quote sellSignal;
         sellSignal.price = price;
         sellSignal.timestamp = timestamp;
-        buyCopy.push(*it2);
-        *it2 = NULL;
+        sell.push_back(sellSignal);
+        buyCopy.push_back(*it2);
       }
     }
-
-    vector<Quote> filteredBuy;
-    for (vector<Quote>::iterator it3 = buy.begin(); it3 != buy.end(); ++it) {
-      if (*it3 != NULL){
-        filteredBuy.push_back(*it3);
-      }
-    }
-    buy = filteredBuy;
   }
   results.push_back(buyCopy);
   results.push_back(sell);

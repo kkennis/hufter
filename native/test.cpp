@@ -1,11 +1,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <fstream>
 #include "json/json-forwards.h"
 #include "json/json.h"
 #include "jsoncpp.cpp"
-#include "algo.h"
+#include "algo.cpp"
 using namespace std;
 
 // Algo contract:
@@ -29,7 +28,6 @@ int main(int argc, char* argv[]) {
   bool parsingSuccessful = reader.parse(data, parsedData);
   if (parsingSuccessful)
   {
-    ofstream fout("results.txt");
     // Go to Results
     // For each key of results (i.e stock)
     // Create vector of quotes (our struct)
@@ -43,8 +41,6 @@ int main(int argc, char* argv[]) {
 
       Json::Value quoteData = results[symbol];
       vector<Quote> stockData;
-      fout << symbol << endl;
-      fout << "=======================================" << endl;
       for (Json::Value::iterator it = quoteData.begin(); it != quoteData.end(); ++it) {
         Quote dayData;
         dayData.price = stod((*it)["Close"].asString());
@@ -52,11 +48,11 @@ int main(int argc, char* argv[]) {
         stockData.push_back(dayData);
       }
 
-      vector<vector<quote>> signals = algo(stockData);
+      vector<vector<Quote>> signals = runAlgo(stockData);
 
       Json::Value symbolResults;
-      Json::Value signals;
-      symbolResults["signals"] = signals;
+      Json::Value resultSignals;
+      symbolResults["signals"] = resultSignals;
       Json::Value buys;
       Json::Value sells;
       symbolResults["signals"]["buy"] = buys;
@@ -64,32 +60,25 @@ int main(int argc, char* argv[]) {
 
       output[symbol] = symbolResults;
 
-      for (vector<quote>::iterator it = signals[0].begin(); it != signals[0].end(); ++it) {
+      for (vector<Quote>::iterator it = signals[0].begin(); it != signals[0].end(); ++it) {
         Json::Value buySignal;
         buySignal.append((*it).timestamp);
         buySignal.append((*it).price);
         output[symbol]["signals"]["buy"].append(buySignal);
       }
 
-      for (vector<quote>::iterator it = signals[1].begin(); it != signals[1].end(); ++it) {
-        Json::Value sellSignals;
-        sellSignals.append((*it).timestamp);
-        sellSignals.append((*it).price);
-        output[symbol]["signals"]["sell"].append(sellSignals);
+      for (vector<Quote>::iterator it = signals[1].begin(); it != signals[1].end(); ++it) {
+        Json::Value sellSignal;
+        sellSignal.append((*it).timestamp);
+        sellSignal.append((*it).price);
+        output[symbol]["signals"]["sell"].append(sellSignal);
       }
 
 
-      fout << "***************************************" << endl;
     }
-
-    fout << endl;
-
     string finalOutput = writer.write(output);
     cout << finalOutput << endl;
-
-    fout.close();
   }
-
 
   return 0;
 }
