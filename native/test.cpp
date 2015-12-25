@@ -5,8 +5,7 @@
 #include "json/json-forwards.h"
 #include "json/json.h"
 #include "jsoncpp.cpp"
-
-// #include <algo.h>
+#include "algo.h"
 using namespace std;
 
 // Algo contract:
@@ -19,11 +18,6 @@ using namespace std;
 // Call algo with vector as arg, get return value as array
 // Turn array output into stringified JSON
 // Cout JSON string
-
-struct Quote {
-  string timestamp;
-  double price;
-};
 
 int main(int argc, char* argv[]) {
   string data = "";
@@ -57,7 +51,8 @@ int main(int argc, char* argv[]) {
         dayData.timestamp = (*it)["Date"].asString();
         stockData.push_back(dayData);
       }
-      vector<quote> signals[2] = algo(stockData);
+
+      vector<vector<quote>> signals = algo(stockData);
 
       Json::Value symbolResults;
       Json::Value signals;
