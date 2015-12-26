@@ -1,4 +1,3 @@
-var testAlgo = require('../testalgo.js')
 var _ = require('ramda');
 
 function runBacktest(algo, data){

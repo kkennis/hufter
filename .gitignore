@@ -24,3 +24,6 @@ node_modules
 
 # Environment file
 .env
+
+# Algorithms
+algos

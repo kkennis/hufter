@@ -4,7 +4,7 @@ var YFhistoricaldata = require('../queries/historicaldata.js');
 var backtest = require('../backtester/backtester.js');
 var crypter = require('../backtester/encrypt.js');
 var calculateStats = require('../backtester/stats.js');
-var algo = require('../testalgo.js');
+var algo = require('../algos/testalgo.js');
 var compiler = require('../native/compile.js');
 var _ = require('ramda');
 
