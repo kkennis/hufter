@@ -18,10 +18,9 @@ function compileAlgo(algo, data) {
       algoBin.stdout.on('data', (chunk) => body += chunk);
       algoBin.on('close', function(exitCode){
         fs.unlink(compiledFile);
-        // fs.unlink(algoName);
-        _.pipe(parseCPPReturn, resolve)(body);
-        // body = parseCPPReturn(body);
-        // resolve(body);
+        fs.unlink(algoName);
+        resolveAlgo = _.pipe(parseCPPReturn, resolve);
+        resolveAlgo(body);
       });
       algoBin.on('error', (err) => reject(err))
       algoBin.stdin.write(JSON.stringify(data) + "\n");
