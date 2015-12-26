@@ -46,7 +46,7 @@ function writeAlgo(algo, data) {
   return new Promise(function(resolve, reject){
     fs.writeFile(algoName, algo, function(err) {
       if (err) reject(err);
-    }
+    });
 
     resolve(data);
   })
