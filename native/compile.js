@@ -4,8 +4,10 @@ var spawn = require('child_process').spawn;
 var _ = require('ramda');
 
 function compileAlgo(algo, data) {
-  var fileName = 'native/test.cpp';
+  var fileName = 'native/wrapper.cpp';
+  var algoName = 'native/algo.cpp';
   var compiledFile = 'native/algo';
+  // We have to deal with actual uploaded algo
 
   return new Promise(function(resolve, reject){
     exec(`g++ -std=c++11 ${fileName} -o ${compiledFile}` , function(err, stdout, stderr){
@@ -13,13 +15,14 @@ function compileAlgo(algo, data) {
       var algoBin = spawn(`./${compiledFile}`);
       var body = '';
 
-      algoBin.stdout.on('data', (chunk) => { console.log("Getting data..."); body += chunk })
+      algoBin.stdout.on('data', (chunk) => body += chunk);
       algoBin.on('close', function(exitCode){
-        // fs.unlink(fileName);
-        // fs.unlink(compiledFile);
-        body = parseCPPReturn(body);
-        resolve(body);
-      })
+        fs.unlink(compiledFile);
+        // fs.unlink(algoName);
+        _.pipe(parseCPPReturn, resolve)(body);
+        // body = parseCPPReturn(body);
+        // resolve(body);
+      });
       algoBin.on('error', (err) => reject(err))
       algoBin.stdin.write(JSON.stringify(data) + "\n");
     })
