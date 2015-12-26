@@ -3,12 +3,13 @@ var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
 var _ = require('ramda');
 
-function compileAlgo(algo, data) {
-  var fileName = 'native/wrapper.cpp';
-  var algoName = 'native/algo.cpp';
-  var compiledFile = 'native/algo';
-  // We have to deal with actual uploaded algo
+// TODO: Use Makefile
 
+var fileName = 'native/wrapper.cpp';
+var algoName = 'native/algo.cpp';
+var compiledFile = 'native/algo';
+
+function compileAlgo(data) {
   return new Promise(function(resolve, reject){
     exec(`g++ -std=c++11 ${fileName} -o ${compiledFile}` , function(err, stdout, stderr){
       if (stderr) { reject(stderr) }
@@ -41,4 +42,18 @@ function parseCPPReturn(data){
   return data;
 }
 
-module.exports = compileAlgo;
+function writeAlgo(algo, data) {
+  return new Promise(function(resolve, reject){
+    fs.writeFile(algoName, algo, function(err) {
+      if (err) reject(err);
+    }
+
+    resolve(data);
+  })
+}
+
+function processAlgo(algo, data){
+  return writeAlgo(algo, data).then(compileAlgo);
+}
+
+module.exports = processAlgo;
