@@ -23,7 +23,7 @@ node_modules
 .node-xmlhttprequest*
 
 # Environment file
-# .env
+.env
 
 # Algorithms
-# algos
+algos

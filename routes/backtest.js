@@ -19,6 +19,7 @@ router.get('/', function(req, res, next){
   // How to best send post data?
   var data = crypter.decrypt(decodeURIComponent(req.query.data));
   data = JSON.parse(data);
+  console.log(data);
 
   var symbols = JSON.parse(data.symbols).concat("TWTR");
   var numPeriods;
@@ -33,7 +34,7 @@ router.get('/', function(req, res, next){
     getPeriods = _.pipe(_.path(['results', _.head(symbols)]), _.length);
     numPeriods = getPeriods(stockData);
 
-    if (req.query.lang === "cpp"){
+    if (data.lang === "cpp"){
       return compiler(data.algo, stockData);
     } else {
       var jsAlgo = (new Function('return ' + data.algo))();

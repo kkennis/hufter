@@ -19,7 +19,6 @@ function calculateStats(results, numPeriods) {
 
 
   Object.keys(results).forEach(function(stock){
-    console.log("YEEEEEEEEEEEEE")
     var getSignals = (signal) => results[stock]["signals"][signal];
     var parseSignals = _.pipe(getSignals, _.map(_.pipe(_.last, parseFloat)));
 
