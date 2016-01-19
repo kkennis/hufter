@@ -7,7 +7,7 @@ function runBacktest(algo, data){
   Object.keys(stocks).forEach(function(stock){
     results[stock] = {};
     var stockData = stocks[stock];
-    var formattedData = _.map((quote) => [quote["Date"], quote["Close"]], stockData)
+    var formattedData = _.reverse(_.map((quote) => [quote["Date"], quote["Close"]], stockData));
     console.log("Data==============================");
     console.log(algo(formattedData));
     console.log("==================================");
