@@ -8,9 +8,6 @@ function runBacktest(algo, data){
     results[stock] = {};
     var stockData = stocks[stock];
     var formattedData = _.reverse(_.map((quote) => [quote["Date"], quote["Close"]], stockData));
-    console.log("Data==============================");
-    console.log(algo(formattedData));
-    console.log("==================================");
     results[stock]["signals"] = algo(formattedData);
   });
 

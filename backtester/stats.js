@@ -16,8 +16,6 @@ var _ = require('ramda');
 function calculateStats(results, numPeriods) {
   var sum = _.reduce(_.add, 0);
 
-
-
   Object.keys(results).forEach(function(stock){
     var getSignals = (signal) => results[stock]["signals"][signal];
     var parseSignals = _.pipe(getSignals, _.map(_.pipe(_.last, parseFloat)));
