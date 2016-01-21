@@ -11,6 +11,7 @@ function runBacktest(algo, data){
     results[stock]["signals"] = algo(formattedData);
   });
 
+
   return results;
 }
 
