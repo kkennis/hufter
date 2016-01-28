@@ -1,5 +1,5 @@
 var _ = require('ramda');
-
+var YFquotes = require('../queries/quotes.js')
   /*
 
   Metrics we want:
@@ -29,6 +29,11 @@ function calculateStats(results, numPeriods) {
     results[stock]["TotalBought"] = totalBought;
     results[stock]["TotalSold"] = totalSold;
     results[stock]["ROI"] = (totalSold - totalBought) / totalBought;
+
+    var riskFreeRate = getRiskFreeRate();
+    results[stock]["sharpeRatio"] = (results[stock]["ROI"] - riskFreeRate) // /  Variance here
+
+
     results[stock]["GrossReturn"] = totalSold - totalBought;
 
     var getVolume = (stock) => stock["Volume"];
@@ -79,6 +84,14 @@ function calculateStats(results, numPeriods) {
 
 
   return results;
+}
+
+function getRiskFreeRate(){
+  var fetchQuery = _.pipe(encodeURIComponent, YFquotes.getLastTrade);
+  var parseResult = _.pipe(_.prop('results'), _.head, _.prop('LastTradePriceOnly'));
+  var riskFreeSymbol = "^IRX";
+
+  return _.pipe(fetchQuery, parseResult, _.multiply(0.01))(riskFreeSymbol);
 }
 
 module.exports = calculateStats;

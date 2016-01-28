@@ -11,7 +11,7 @@ var get = function(url){
 
 var post = function(url){
   return new Promise(function(resolve, reject){
-    needle.post(url, function(err, res){
+    needle.post(url, data, function(err, res){
       if (err) { reject(err) }
       else { resolve(res) }
     })
